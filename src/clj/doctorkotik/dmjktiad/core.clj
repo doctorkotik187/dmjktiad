@@ -10,7 +10,9 @@
    [doctorkotik.dmjktiad.web.handler]
 
     ;; Routes
-   [doctorkotik.dmjktiad.web.routes.api])
+   [doctorkotik.dmjktiad.web.routes.api] 
+    [doctorkotik.dmjktiad.web.routes.pages] 
+    [kit.edge.http.hato])
   (:gen-class))
 
 ;; log uncaught exceptions in threads

@@ -1,28 +1,30 @@
 {:paths   ["src/clj"
            "resources"]
 
- :deps    {org.clojure/clojure             {:mvn/version "1.12.4"}
+ :deps    {org.clojure/clojure {:mvn/version "1.12.4"}
 
            ;; Routing
-           metosin/reitit                  {:mvn/version "0.10.1"}
+ metosin/reitit {:mvn/version "0.10.1"}
 
            ;; Ring
-           metosin/ring-http-response      {:mvn/version "0.9.5"}
-           ring/ring-core                  {:mvn/version "1.15.4"}
-           ring/ring-defaults              {:mvn/version "0.7.0"}
+ metosin/ring-http-response {:mvn/version "0.9.5"}
+ ring/ring-core {:mvn/version "1.15.4"}
+ ring/ring-defaults {:mvn/version "0.7.0"}
 
            ;; Logging
-           ch.qos.logback/logback-classic  {:mvn/version "1.5.32"}
+ ch.qos.logback/logback-classic {:mvn/version "1.5.32"}
 
            ;; Data coercion
-           luminus-transit/luminus-transit {:mvn/version "0.1.6"
-                                            :exclusions [com.cognitect/transit-clj]}
-           metosin/muuntaja                {:mvn/version "0.6.11"}
+ luminus-transit/luminus-transit {:mvn/version "0.1.6"
+                                  :exclusions [com.cognitect/transit-clj]}
+ metosin/muuntaja {:mvn/version "0.6.11"}
 
            ;; kit Libs
-           io.github.kit-clj/kit-core {:mvn/version "1.0.10"}
-           io.github.kit-clj/kit-undertow {:mvn/version "1.0.14"}
-           }
+ io.github.kit-clj/kit-core {:mvn/version "1.0.10"}
+ io.github.kit-clj/kit-undertow {:mvn/version "1.0.14"}
+ selmer/selmer {:mvn/version "1.12.50"}
+ luminus/ring-ttl-session {:mvn/version "0.3.3"}
+ io.github.kit-clj/kit-hato {:mvn/version "1.0.3"}}
  :aliases {:build {:deps {io.github.clojure/tools.build {:mvn/version "0.10.12"}}
                    :ns-default build}
 
