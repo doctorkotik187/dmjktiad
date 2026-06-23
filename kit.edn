@@ -1,0 +1,8 @@
+{:full-name "doctorkotik/dmjktiad"
+ :ns-name   "doctorkotik.dmjktiad"
+ :sanitized "doctorkotik/dmjktiad"
+ :name      "dmjktiad"
+ :modules   {:root         "modules"
+             :repositories [{:url  "https://github.com/kit-clj/modules.git"
+                             :tag  "master"
+                             :name "kit-modules"}]}}
