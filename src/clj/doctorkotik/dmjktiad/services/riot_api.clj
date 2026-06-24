@@ -1,6 +1,7 @@
 (ns doctorkotik.dmjktiad.services.riot-api
   (:require
    [clojure.string :as str]
+   [doctorkotik.dmjktiad.config :as config]
    [hato.client :as http]))
 
 (def ^:private routing
@@ -25,7 +26,8 @@
 
 (defn- api-key []
   (or (System/getenv "RIOT_API_KEY")
-      (throw (ex-info "RIOT_API_KEY env var not set" {}))))
+      (:riot-api-key (config/secrets))
+      (throw (ex-info "RIOT_API_KEY env var not set and no secrets.edn found" {}))))
 
 (defn- get-request [url]
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
