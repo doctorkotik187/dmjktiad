@@ -1,22 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="todo: describe app here">
-    <title>Welcome to dmjktiad</title>
+{% extends "base.html" %}
 
-    <!-- styles -->
-    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
-</head>
-<body>
-    <!-- navbar -->
-    <nav>
-    </nav>
-    <section>
-        <div class="content">
-            <h2>Hello World!</h2>
+{% block content %}
+<h2 class="title">Drake Checker</h2>
+<p class="subtitle">Enter a Riot ID to check their jungling drake stats.</p>
+
+<form hx-post="/check" hx-target="#result" hx-swap="innerHTML">
+    <div class="field has-addons">
+        <div class="control">
+            <input class="input" type="text" name="riot-id" placeholder="PlayerName#TAG" required />
         </div>
-    </section>
-</body>
-</html>
+        <div class="control">
+            <div class="select">
+                <select name="region">
+                    <option value="euw1">EUW</option>
+                    <option value="na1">NA</option>
+                    <option value="kr">KR</option>
+                    <option value="eun1">EUNE</option>
+                    <option value="br1">BR</option>
+                    <option value="la1">LA1</option>
+                    <option value="la2">LA2</option>
+                    <option value="tr1">TR</option>
+                    <option value="ru">RU</option>
+                    <option value="jp1">JP</option>
+                    <option value="oc1">OCE</option>
+                </select>
+            </div>
+        </div>
+        <div class="control">
+            <button class="button is-primary" type="submit">Check</button>
+        </div>
+    </div>
+</form>
+
+<div id="result" style="margin-top: 2rem;"></div>
+{% endblock %}
