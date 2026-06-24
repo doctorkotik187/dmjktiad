@@ -27,12 +27,31 @@
       (layout/render request "error.html" {:status 400
                                            :title "Error"
                                            :message (name (:error result))})
-      (layout/render request "result.html" (:ok result)))))
+      (let [push-url (str "/summoners/" region "/" (java.net.URLEncoder/encode game-name "UTF-8") "-" (java.net.URLEncoder/encode tag-line "UTF-8"))]
+        (-> (layout/render request "result.html" (:ok result))
+            (assoc-in [:headers "HX-Push-Url"] push-url))))))
+
+(defn summoner-page [request]
+  (let [region (get-in request [:path-params :region])
+        full-name (get-in request [:path-params :full-name])
+        [game-name tag-line] (when (string? full-name)
+                               (str/split full-name #"-" 2))]
+    (if (or (nil? game-name) (nil? tag-line) (empty? game-name) (empty? tag-line))
+      (layout/render request "error.html" {:status 400
+                                           :title "Error"
+                                           :message "Invalid summoner URL"})
+      (let [result (jungler/check-player (keyword region) game-name tag-line)]
+        (if (:error result)
+          (layout/render request "error.html" {:status 400
+                                               :title "Error"
+                                               :message (name (:error result))})
+          (layout/render request "result.html" (:ok result)))))))
 
 ;; Routes
 (defn page-routes [_opts]
   [["/" {:get home}]
-   ["/check" {:post check-handler}]])
+   ["/check" {:post check-handler}]
+   ["/summoners/:region/:full-name" {:get summoner-page}]])
 
 (def route-data
   {:middleware
