@@ -64,6 +64,14 @@
                   "/ids?count=" count "&queue=420")]
      (get-request url))))
 
+(defn get-summoner
+  "Fetches summoner data by puuid. Returns {:ok {:profileIconId ... :summonerLevel ...}} or {:error reason}."
+  [region puuid]
+  (let [platform (str/lower-case (name region))
+        url (str "https://" platform ".api.riotgames.com/lol/summoner/v4/summoners/by-puuid/"
+                 (java.net.URLEncoder/encode puuid "UTF-8"))]
+    (get-request url)))
+
 (defn get-match
   "Fetches a single match by ID. Returns {:ok match-map} or {:error reason}."
   [region match-id]

@@ -47,8 +47,12 @@
           (let [match-ids (:ok ids-result)
                 matches (keep :ok (map #(riot-api/get-match region %) match-ids))
                 drake-data (analysis/extract-all-drake-data matches puuid)
-                stats (compute-stats drake-data)]
+                stats (compute-stats drake-data)
+                summoner-result (riot-api/get-summoner region puuid)
+                profile-icon-id (when (contains? summoner-result :ok)
+                                  (:profileIconId (:ok summoner-result)))]
             {:ok (assoc stats
                         :gameName (:gameName account)
                         :tagLine (:tagLine account)
+                        :profile-icon-id profile-icon-id
                         :verdict (verdict/get-verdict (:drake-rate stats)))}))))))
