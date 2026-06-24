@@ -1,0 +1,365 @@
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-2: #242836;
+  --text: #e4e6f0;
+  --text-muted: #8b8fa3;
+  --accent: #6c5ce7;
+  --accent-glow: rgba(108, 92, 231, 0.3);
+  --green: #00d68f;
+  --red: #ff6b6b;
+  --gold: #ffd43b;
+  --radius: 12px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f6fa;
+    --surface: #ffffff;
+    --surface-2: #eef0f6;
+    --text: #1a1d27;
+    --text-muted: #5c6078;
+    --accent-glow: rgba(108, 92, 231, 0.15);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.container {
+  max-width: 520px;
+  width: 100%;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+  background: linear-gradient(135deg, var(--accent), #a29bfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Form */
+.form-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+
+.field.has-addons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.field .control {
+  flex: 1;
+}
+
+.field .control select,
+.field .control input {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field .control input:focus,
+.field .control select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.field .control select {
+  cursor: pointer;
+  min-width: 90px;
+  flex: 0 0 auto;
+}
+
+.button.is-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.button.is-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.button.is-primary:active {
+  transform: translateY(0);
+}
+
+/* Result Card */
+.result-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  animation: fade-in 0.4s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.champ-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  object-fit: cover;
+}
+
+.result-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.result-header .tagline {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Main stat */
+.stat-main {
+  text-align: center;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--surface-2);
+  margin-bottom: 1.5rem;
+}
+
+.stat-number {
+  display: block;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent), #a29bfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.3rem;
+}
+
+/* Stat row */
+.stat-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-small {
+  flex: 1;
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-small span:first-child {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.stat-small span:last-child {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+/* Verdict */
+.verdict {
+  background: var(--surface-2);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.verdict::before {
+  content: '"';
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  font-size: 2.5rem;
+  color: var(--accent);
+  opacity: 0.4;
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+.verdict p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--text);
+}
+
+/* Top champs */
+.top-champs {
+  margin-bottom: 1.5rem;
+}
+
+.top-champs h4 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 0.8rem;
+}
+
+.champ-list {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.champ-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+}
+
+.champ-item img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.champ-item .champ-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.champ-item .champ-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Back link */
+.back-link {
+  display: inline-block;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.back-link:hover {
+  opacity: 0.8;
+}
+
+/* Error */
+.error-box {
+  background: var(--surface);
+  border: 1px solid var(--red);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.error-box h3 {
+  color: var(--red);
+  margin: 0 0 0.5rem;
+}
+
+.error-box p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Loading indicator */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+.loading.htmx-request {
+  display: block;
+}
+
+.spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--surface-2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,37 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="title">Drake Checker</h2>
-<p class="subtitle">Enter a Riot ID to check their jungling drake stats.</p>
+<div class="header">
+  <h1>Drake Checker</h1>
+  <p>Enter a Riot ID to check their jungling drake stats</p>
+</div>
 
-<form hx-post="/check" hx-target="#result" hx-swap="innerHTML">
+<div class="form-card">
+  <form hx-post="/check" hx-target="#result" hx-swap="innerHTML" hx-indicator="#loading">
     {% csrf-field %}
     <div class="field has-addons">
-        <div class="control">
-            <input class="input" type="text" name="riot-id" placeholder="PlayerName#TAG" required />
-        </div>
-        <div class="control">
-            <div class="select">
-                <select name="region">
-                    <option value="euw1">EUW</option>
-                    <option value="na1">NA</option>
-                    <option value="kr">KR</option>
-                    <option value="eun1">EUNE</option>
-                    <option value="br1">BR</option>
-                    <option value="la1">LA1</option>
-                    <option value="la2">LA2</option>
-                    <option value="tr1">TR</option>
-                    <option value="ru">RU</option>
-                    <option value="jp1">JP</option>
-                    <option value="oc1">OCE</option>
-                </select>
-            </div>
-        </div>
-        <div class="control">
-            <button class="button is-primary" type="submit">Check</button>
-        </div>
+      <div class="control">
+        <input type="text" name="riot-id" placeholder="PlayerName#TAG" required />
+      </div>
+      <div class="control">
+        <select name="region">
+          <option value="euw1">EUW</option>
+          <option value="na1">NA</option>
+          <option value="kr">KR</option>
+          <option value="eun1">EUNE</option>
+          <option value="br1">BR</option>
+          <option value="la1">LA1</option>
+          <option value="la2">LA2</option>
+          <option value="tr1">TR</option>
+          <option value="ru">RU</option>
+          <option value="jp1">JP</option>
+          <option value="oc1">OCE</option>
+        </select>
+      </div>
+      <div class="control">
+        <button class="button is-primary" type="submit">Check</button>
+      </div>
     </div>
-</form>
+  </form>
+</div>
 
-<div id="result" style="margin-top: 2rem;"></div>
+<div id="result">
+</div>
+
+<div id="loading" class="loading">
+  <span class="spinner"></span>
+  <p>Fetching match history...</p>
+</div>
 {% endblock %}

@@ -2,7 +2,13 @@
 
 {% block content %}
 <div class="result-card">
-  <h2>{{gameName}}#{{tagLine}}</h2>
+  <div class="result-header">
+    <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/{{champ-icon|default:"Teemo"}}.png" alt="champion" />
+    <div>
+      <h2>{{gameName}}#{{tagLine}}</h2>
+      <span class="tagline">{{total-games}} games analyzed</span>
+    </div>
+  </div>
 
   <div class="stat-main">
     <span class="stat-number">{{drake-rate|double-format:0}}%</span>
@@ -11,11 +17,11 @@
 
   <div class="stat-row">
     <div class="stat-small">
-      <span>{{win-with-drakes|default:"N/A"|double-format:0}}%</span>
+      <span>{{win-with-drakes|default:"0"|double-format:0}}%</span>
       <span>WR with Drakes</span>
     </div>
     <div class="stat-small">
-      <span>{{win-without-drakes|default:"N/A"|double-format:0}}%</span>
+      <span>{{win-without-drakes|default:"0"|double-format:0}}%</span>
       <span>WR without Drakes</span>
     </div>
   </div>
@@ -24,15 +30,23 @@
     <p>{{verdict}}</p>
   </div>
 
+  {% if top-champs %}
   <div class="top-champs">
     <h4>Top Champions</h4>
-    <ul>
+    <div class="champ-list">
       {% for champ in top-champs %}
-      <li>{{champ.0}} ({{champ.1}} games)</li>
+      <div class="champ-item">
+        <img src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/{{champ.0}}.png" alt="{{champ.0}}" />
+        <div>
+          <span class="champ-name">{{champ.0}}</span>
+          <span class="champ-count">{{champ.1}} games</span>
+        </div>
+      </div>
       {% endfor %}
-    </ul>
+    </div>
   </div>
+  {% endif %}
 
-  <a href="/">Check another</a>
+  <a class="back-link" href="/">Check another</a>
 </div>
 {% endblock %}
