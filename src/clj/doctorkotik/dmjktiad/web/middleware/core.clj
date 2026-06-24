@@ -4,19 +4,19 @@
     [ring.middleware.defaults :as defaults]
     [ring.middleware.session.cookie :as cookie]))
 
-(def ^:private security-headers
-  {"Content-Security-Policy"
-   (str "default-src 'self'; "
-        "script-src 'self' https://unpkg.com; "
-        "style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
-        "img-src 'self' https://ddragon.leagueoflegends.com data:; "
-        "connect-src 'self'; "
-        "frame-ancestors 'none'; "
-        "base-uri 'self'; "
-        "form-action 'self'")
-   "X-Content-Type-Options" "nosniff"
-   "X-Frame-Options" "DENY"
-   "X-XSS-Protection" "1; mode=block"})
+(defn- wrap-csp [handler]
+  (fn [request]
+    (let [response (handler request)]
+      (-> response
+          (assoc-in [:headers "Content-Security-Policy"]
+                    (str "default-src 'self'; "
+                         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                         "script-src 'self' https://unpkg.com; "
+                         "img-src 'self' data: https://ddragon.leagueoflegends.com; "
+                         "connect-src 'self'; "
+                         "frame-ancestors 'none'"))
+          (assoc-in [:headers "X-Content-Type-Options"] "nosniff")
+          (assoc-in [:headers "X-Frame-Options"] "DENY")))))
 
 (defn wrap-base
   [{:keys [metrics site-defaults-config cookie-secret] :as opts}]
@@ -25,6 +25,4 @@
       (cond-> ((:middleware env/defaults) handler opts)
               true (defaults/wrap-defaults
                      (assoc-in site-defaults-config [:session :store] cookie-store))
-              true (fn [request]
-                     (let [response (handler request)]
-                       (update response :headers merge security-headers)))))))
+              true wrap-csp))))
