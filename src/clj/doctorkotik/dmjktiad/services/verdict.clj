@@ -7,7 +7,7 @@
    :decent     "Decent drake presence. Might even ping it."
    :based      "This jungler eats drakes for breakfast. Respect."})
 
-(defn- rate->key [drake-rate]
+(defn rate->key [drake-rate]
   (cond
     (<= drake-rate 0.2) :clueless
     (<= drake-rate 0.4) :suspicious
