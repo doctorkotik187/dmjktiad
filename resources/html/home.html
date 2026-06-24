@@ -5,6 +5,7 @@
 <p class="subtitle">Enter a Riot ID to check their jungling drake stats.</p>
 
 <form hx-post="/check" hx-target="#result" hx-swap="innerHTML">
+    {% csrf-field %}
     <div class="field has-addons">
         <div class="control">
             <input class="input" type="text" name="riot-id" placeholder="PlayerName#TAG" required />
