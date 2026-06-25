@@ -25,13 +25,17 @@
                              (:profileIconId (:ok summoner-result)))
             league-result (riot-api/get-league region (:id (:ok summoner-result)))
             league-entry (when (:ok league-result)
-                           (some #(when (= (:queueType %) "RANKED_SOLO_5x5")) (:ok league-result)))
+                           (some #(when (= (:queueType %) "RANKED_SOLO_5x5") %) (:ok league-result)))
             rank-info (when league-entry
-                        {:tier (:tier league-entry)
-                         :rank (:rank league-entry)
-                         :lp (:leaguePoints league-entry)
-                         :wins (:wins league-entry)
-                         :losses (:losses league-entry)})
+                        (let [wins (:wins league-entry)
+                              losses (:losses league-entry)
+                              total (+ wins losses)]
+                          {:tier (:tier league-entry)
+                           :rank (:rank league-entry)
+                           :lp (:leaguePoints league-entry)
+                           :wins wins
+                           :losses losses
+                           :win-rate (if (pos? total) (/ wins total) 0.0)}))
             safe-top-champs (map (fn [[champ count]]
                                    (let [name (str/replace (or champ "") #"[^a-zA-Z0-9._\-\s]" "")
                                          pct (if (pos? (:jungle-games stats))

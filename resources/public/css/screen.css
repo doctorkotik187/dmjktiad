@@ -144,6 +144,21 @@ body {
   transform: translateY(0);
 }
 
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
 .btn-primary:disabled,
 .btn.disabled {
   opacity: 0.6;

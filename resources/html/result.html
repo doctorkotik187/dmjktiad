@@ -9,11 +9,12 @@
     <div>
       <h2>{{gameName}}#{{tagLine}}</h2>
       {% if rank %}
-      <span class="rank-badge">{{rank.tier}} {{rank.rank}} — {{rank.lp}} LP ({{rank.wins}}W {{rank.losses}}L)</span>
+      <span class="rank-badge">{{rank.tier}} {{rank.rank}} — {{rank.lp}} LP ({{rank.wins}}W {{rank.losses}}L, Win rate {{rank.win-rate|pct}})</span>
       {% endif %}
       <span class="tagline tooltip" title="How many of the recent ranked games were played in the jungle role (Smite + JUNGLE position)">{{jungle-games}} jungle games ({{jungle-main-rate|pct}} of {{total-games}} ranked)</span>
     </div>
     <div class="header-right">
+      <a class="btn btn-secondary" href="{{op-gg-url}}" target="_blank" rel="noopener">OP.GG</a>
       {% if rate-limited %}
       <a class="btn refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
       {% else %}
