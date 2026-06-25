@@ -457,3 +457,30 @@ body {
   font-weight: 600;
   text-align: right;
 }
+
+/* Not Jungler Card */
+.not-jungler-card {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.not-jungler-emoji {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.not-jungler-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.not-jungler-card p {
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+}
+
+.not-jungler-sub {
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem !important;
+}

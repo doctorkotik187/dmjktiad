@@ -30,19 +30,22 @@
                                                 0.0)]
                                      [name count pct]))
                                  (:top-champs stats))
-            verdict-text (verdict/verdict stats)]
+            not-jungler? (let [rate (:jungle-main-rate stats)]
+                           (or (nil? rate) (< rate 0.4)))
+            verdict-text (if not-jungler? nil (verdict/verdict stats))]
         (log/info "player stats" {:region region
                                   :player (str game-name "#" tag-line)
                                   :ranked-games (count matches)
                                   :jungle-games (:jungle-games stats)
-                                  :control-pct (:control-pct stats)
+                                  :not-jungler? not-jungler?
                                   :verdict verdict-text})
-        {:ok (assoc stats
+        {:ok (cond-> (assoc stats
                     :gameName (:gameName account)
                     :tagLine (:tagLine account)
                     :profile-icon-id profile-icon-id
                     :top-champs safe-top-champs
-                    :verdict verdict-text)}))))
+                    :verdict verdict-text)
+              not-jungler? (assoc :not-jungler true))}))))
 
 (def cooldown-ms (* 60 60 1000))
 

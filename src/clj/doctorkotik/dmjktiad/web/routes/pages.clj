@@ -62,19 +62,22 @@
           (layout/render request "error.html" {:status 400
                                                :title "Error"
                                                :message (name (:error result))})
-          (let [clean-url (str "/summoners/" region "/" (url-path game-name) "-" (url-path tag-line))
-                template-data (assoc (:ok result)
-                                     :cached (:cached result)
-                                     :rate-limited (:rate-limited result false)
-                                     :retry-in-ms (:retry-in-ms result 0)
-                                     :retry-in-seconds (int (Math/ceil (/ (:retry-in-ms result 0) 1000))))]
-            (if (:rate-limited result)
-              (layout/render request "result.html" template-data)
-              (if force-refresh?
-                {:status 302
-                 :headers {"Location" clean-url}
-                 :body ""}
-                (layout/render request "result.html" template-data)))))))))
+          (if (get-in result [:ok :not-jungler])
+            (layout/render request "not-jungler.html" {:gameName (get-in result [:ok :gameName])
+                                                        :tagLine (get-in result [:ok :tagLine])})
+            (let [clean-url (str "/summoners/" region "/" (url-path game-name) "-" (url-path tag-line))
+                  template-data (assoc (:ok result)
+                                       :cached (:cached result)
+                                       :rate-limited (:rate-limited result false)
+                                       :retry-in-ms (:retry-in-ms result 0)
+                                       :retry-in-seconds (int (Math/ceil (/ (:retry-in-ms result 0) 1000))))]
+              (if (:rate-limited result)
+                (layout/render request "result.html" template-data)
+                (if force-refresh?
+                  {:status 302
+                   :headers {"Location" clean-url}
+                   :body ""}
+                  (layout/render request "result.html" template-data))))))))))
 
 ;; Routes
 (defn page-routes [_opts]
