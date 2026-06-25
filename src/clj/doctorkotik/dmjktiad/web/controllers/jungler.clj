@@ -11,17 +11,26 @@
   (let [total-games (count drake-data)
         games-with-drakes (filter #(pos? (:drake-kills %)) drake-data)
         drake-rate (if (pos? total-games)
-                     (/ (count games-with-drakes) total-games)
-                     0)
+                     (float (/ (count games-with-drakes) total-games))
+                     0.0)
         wins-with-drakes (filter :win games-with-drakes)
         wins-without-drakes (filter :win (remove #(pos? (:drake-kills %)) drake-data))
         wr-with-drakes (if (seq games-with-drakes)
-                         (/ (count wins-with-drakes) (count games-with-drakes))
-                         0)
+                         (float (/ (count wins-with-drakes) (count games-with-drakes)))
+                         0.0)
         wr-without-drakes (if (seq (remove #(pos? (:drake-kills %)) drake-data))
-                            (/ (count wins-without-drakes)
-                               (count (remove #(pos? (:drake-kills %)) drake-data)))
-                            0)
+                            (float (/ (count wins-without-drakes)
+                               (count (remove #(pos? (:drake-kills %)) drake-data))))
+                            0.0)
+        total-drake-kills (reduce + (map :drake-kills drake-data))
+        avg-drakes (if (pos? total-games)
+                     (float (/ total-drake-kills total-games))
+                     0.0)
+        first-drake-games (filter :drake-first drake-data)
+        first-drake-rate (if (pos? total-games)
+                          (float (/ (count first-drake-games) total-games))
+                          0.0)
+        drake-distribution (frequencies (map :drake-kills drake-data))
         top-champs (->> drake-data
                         (group-by :champion)
                         (map (fn [[champ games]] [champ (count games)]))
@@ -30,6 +39,10 @@
     {:total-games     total-games
      :jungle-games    total-games
      :drake-rate      drake-rate
+     :total-drake-kills total-drake-kills
+     :avg-drakes      avg-drakes
+     :first-drake-rate first-drake-rate
+     :drake-distribution drake-distribution
      :win-with-drakes   wr-with-drakes
      :win-without-drakes wr-without-drakes
      :top-champs     top-champs
@@ -60,14 +73,12 @@
                                  (:top-champs stats))]
         (log/info "player stats" {:region region
                                   :player (str game-name "#" tag-line)
-                                  :matches-fetched (count match-ids)
-                                  :matches-loaded (count matches)
                                   :ranked-games (count matches)
                                   :jungle-games (:total-games stats)
-                                  :jungle-percentage (if (pos? (count matches))
-                                                       (* 100.0 (/ (:total-games stats) (count matches)))
-                                                       0)
+                                  :total-drake-kills (:total-drake-kills stats)
+                                  :avg-drakes (:avg-drakes stats)
                                   :drake-rate (:drake-rate stats)
+                                  :first-drake-rate (:first-drake-rate stats)
                                   :wr-with-drakes (:win-with-drakes stats)
                                   :wr-without-drakes (:win-without-drakes stats)
                                   :verdict (:verdict-key stats)})
@@ -93,7 +104,15 @@
    (if-let [entry (cache/lookup region game-name tag-line)]
      (if (and force-refresh? (:cached-at entry) (< (- (System/currentTimeMillis) (:cached-at entry)) cooldown-ms))
        {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true :rate-limited true :retry-in-ms (- cooldown-ms (- (System/currentTimeMillis) (:cached-at entry)))}
-       {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true})
+       {:ok (merge {:total-drake-kills 0
+                    :avg-drakes 0.0
+                    :first-drake-rate 0.0
+                    :drake-distribution {}
+                    :ranked-games 0
+                    :jungle-percentage 0.0}
+                   (:result entry)
+                   {:cached-at (java.util.Date. (:cached-at entry))})
+           :cached true})
      (let [account-result (riot-api/get-account region game-name tag-line)]
        (if (:error account-result)
          account-result

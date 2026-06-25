@@ -25,12 +25,23 @@
 
   <div class="stat-row">
     <div class="stat-small">
-      <span>{{win-with-drakes|default:"0"|double-format:0}}%</span>
-      <span>WR with Drakes</span>
+      <span>{{total-drake-kills}}</span>
+      <span>Total Drakes</span>
     </div>
     <div class="stat-small">
-      <span>{{win-without-drakes|default:"0"|double-format:0}}%</span>
-      <span>WR without Drakes</span>
+      <span>{{avg-drakes|double-format:1}}</span>
+      <span>Avg Drakes/Game</span>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-small">
+      <span>{{first-drake-rate|double-format:0}}%</span>
+      <span>First Drake Rate</span>
+    </div>
+    <div class="stat-small">
+      <span>{{drake-distribution.0|default:"0"}}/{{drake-distribution.1|default:"0"}}/{{drake-distribution.2|default:"0"}}/{{drake-distribution.3|default:"0"}}+</span>
+      <span>0/1/2/3+ Drakes</span>
     </div>
   </div>
 
