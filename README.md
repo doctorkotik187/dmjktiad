@@ -132,7 +132,3 @@ java -jar target/dmjktiad.jar
 ```
 
 ---
-
-## Contributing
-
-It's a troll app. PRs that make the roasts funnier are automatically approved.
