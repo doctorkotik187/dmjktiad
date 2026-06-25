@@ -23,7 +23,7 @@
   (when-key
     (testing "fetches match IDs for a known player"
       (let [puuid "sLq3qQpGvIDNaZyWGK5to1oQDGXsGpFeFjlVvzshN1PA2cIGpAqeujzYUwplFahT5WK6KOtvIYuJwg"
-            result (riot/get-match-ids :na1 puuid 5)]
+            result (riot/get-match-ids :na1 puuid)]
         (is (contains? result :ok))
         (let [ids (:ok result)]
           (is (vector? ids))

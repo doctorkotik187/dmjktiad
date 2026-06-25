@@ -12,7 +12,7 @@
     id))
 
 (defn- fetch-and-compute [region game-name tag-line puuid account]
-  (let [ids-result (riot-api/get-match-ids region puuid 100)]
+  (let [ids-result (riot-api/get-match-ids region puuid)]
     (if (:error ids-result)
       (do (log/warn "match-ids failed" {:region region :game-name game-name :error (:error ids-result)})
           ids-result)

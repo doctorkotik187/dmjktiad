@@ -91,17 +91,26 @@
                  (url-encode (name tag-line)))]
     (get-request url)))
 
+(defn- fetch-match-ids-page [region puuid start]
+  (let [cluster (region->cluster region)
+        url (str (base-url cluster)
+                 "/lol/match/v5/matches/by-puuid/"
+                 (url-encode puuid)
+                 "/ids?count=100&queue=420&start=" start)]
+    (get-request url)))
+
 (defn get-match-ids
-  "Fetches recent ranked match IDs for a puuid. Returns {:ok [id1 id2 ...]} or {:error reason}."
-  ([region puuid]
-   (get-match-ids region puuid 20))
-  ([region puuid count]
-   (let [cluster (region->cluster region)
-         url (str (base-url cluster)
-                  "/lol/match/v5/matches/by-puuid/"
-                  (url-encode puuid)
-                  "/ids?count=" count "&queue=420")]
-     (get-request url))))
+  "Fetches up to 200 recent ranked match IDs for a puuid (2 pages of 100).
+   Returns {:ok [id1 id2 ...]} or {:error reason}."
+  [region puuid]
+  (let [first-page (fetch-match-ids-page region puuid 0)]
+    (if (:error first-page)
+      first-page
+      (let [first-ids (:ok first-page)
+            second-page (fetch-match-ids-page region puuid 100)]
+        (if (:error second-page)
+          {:ok first-ids}
+          {:ok (concat first-ids (:ok second-page))})))))
 
 (defn get-summoner
   "Fetches summoner data by puuid. Returns {:ok {:profileIconId ... :summonerLevel ...}} or {:error reason}."
