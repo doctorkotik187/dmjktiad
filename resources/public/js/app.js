@@ -52,4 +52,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (overlay) overlay.style.display = 'none';
   }
 
+  var cooldown = document.getElementById('refresh-cooldown');
+  if (cooldown) {
+    var remaining = parseInt(cooldown.dataset.seconds, 10);
+    function tick() {
+      if (remaining <= 0) {
+        cooldown.textContent = 'Refresh now';
+        return;
+      }
+      var mins = Math.floor(remaining / 60);
+      var secs = remaining % 60;
+      cooldown.textContent = 'Refresh in ' + mins + ':' + (secs < 10 ? '0' : '') + secs;
+      remaining--;
+      setTimeout(tick, 1000);
+    }
+    tick();
+  }
+
 });

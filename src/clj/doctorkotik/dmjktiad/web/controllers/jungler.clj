@@ -63,14 +63,18 @@
                     :top-champs safe-top-champs
                     :verdict (verdict/get-verdict (:drake-rate stats)))}))))
 
+(def cooldown-ms (* 60 60 1000))
+
 (defn check-player
   "Full pipeline: resolve account -> fetch matches -> filter jungle -> compute stats.
-  Returns {:ok stats-map :cached bool} or {:error reason}."
+  Returns {:ok stats-map :cached bool :rate-limited bool :retry-in-ms ms} or {:error reason}."
   ([region game-name tag-line]
    (check-player region game-name tag-line false))
   ([region game-name tag-line force-refresh?]
-   (if-let [entry (and (not force-refresh?) (cache/lookup region game-name tag-line))]
-     {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true}
+   (if-let [entry (cache/lookup region game-name tag-line)]
+     (if (and force-refresh? (:cached-at entry) (< (- (System/currentTimeMillis) (:cached-at entry)) cooldown-ms))
+       {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true :rate-limited true :retry-in-ms (- cooldown-ms (- (System/currentTimeMillis) (:cached-at entry)))}
+       {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true})
      (let [account-result (riot-api/get-account region game-name tag-line)]
        (if (:error account-result)
          account-result

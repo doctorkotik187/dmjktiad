@@ -50,12 +50,19 @@
                                                :message (name (:error result))})
           (let [clean-url (str "/summoners/" region "/"
                                (java.net.URLEncoder/encode game-name "UTF-8") "-"
-                               (java.net.URLEncoder/encode tag-line "UTF-8"))]
-            (if force-refresh?
-              {:status 302
-               :headers {"Location" clean-url}
-               :body ""}
-              (layout/render request "result.html" (assoc (:ok result) :cached (:cached result))))))))))
+                               (java.net.URLEncoder/encode tag-line "UTF-8"))
+                template-data (assoc (:ok result)
+                                     :cached (:cached result)
+                                     :rate-limited (:rate-limited result false)
+                                     :retry-in-ms (:retry-in-ms result 0)
+                                     :retry-in-seconds (int (Math/ceil (/ (:retry-in-ms result 0) 1000))))]
+            (if (:rate-limited result)
+              (layout/render request "result.html" template-data)
+              (if force-refresh?
+                {:status 302
+                 :headers {"Location" clean-url}
+                 :body ""}
+                (layout/render request "result.html" template-data)))))))))
 
 ;; Routes
 (defn page-routes [_opts]
