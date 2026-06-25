@@ -77,43 +77,47 @@ body {
   box-shadow: 0 4px 24px rgba(0,0,0,0.2);
 }
 
-.field.has-addons {
+.search-row {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
-.field .control {
-  flex: 1;
-}
-
-.field .control select,
-.field .control input {
+.search-row .search-input {
   background: var(--surface-2);
   color: var(--text);
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 0.6rem 1rem;
   font-size: 0.95rem;
-  width: 100%;
+  flex: 1;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.field .control input:focus,
-.field .control select:focus {
+.search-row .search-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-.field .control select {
+.search-row select {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
+  outline: none;
   min-width: 90px;
-  flex: 0 0 auto;
 }
 
-.button.is-primary {
-  background: var(--accent);
-  color: white;
+.search-row select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.btn {
   border: none;
   border-radius: 8px;
   padding: 0.6rem 1.2rem;
@@ -122,13 +126,26 @@ body {
   transition: transform 0.1s, box-shadow 0.2s;
 }
 
-.button.is-primary:hover {
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px var(--accent-glow);
 }
 
-.button.is-primary:active {
+.btn-primary:active {
   transform: translateY(0);
+}
+
+.btn-primary:disabled,
+.btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Result Card */

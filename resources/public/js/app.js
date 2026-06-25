@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
     tick();
   }
 
-  var input = document.querySelector('input[name="riot-id"]');
+  var input = document.getElementById('riot-id-input');
   var datalist = document.getElementById('recent-searches');
   if (input && datalist) {
     var STORAGE_KEY = 'drake-checker-recent';
@@ -80,8 +80,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function saveRecent(list) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
     }
-    function renderDatalist() {
+    function renderDatalist(filter) {
       var list = loadRecent();
+      if (filter) {
+        list = list.filter(function (x) { return x.toLowerCase().indexOf(filter.toLowerCase()) !== -1; });
+      }
       datalist.innerHTML = '';
       list.forEach(function (item) {
         var opt = document.createElement('option');
@@ -89,6 +92,12 @@ document.addEventListener('DOMContentLoaded', function () {
         datalist.appendChild(opt);
       });
     }
+    input.addEventListener('input', function () {
+      renderDatalist(input.value.trim());
+    });
+    input.addEventListener('focus', function () {
+      renderDatalist(input.value.trim());
+    });
     input.addEventListener('blur', function () {
       var val = input.value.trim();
       if (!val) return;
@@ -97,9 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
       list.unshift(val);
       if (list.length > 10) list = list.slice(0, 10);
       saveRecent(list);
-      renderDatalist();
     });
-    input.addEventListener('focus', renderDatalist);
     renderDatalist();
   }
 

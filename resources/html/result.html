@@ -13,7 +13,7 @@
     {% if rate-limited %}
     <a class="button refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
     {% else %}
-    <a class="button is-primary refresh-btn" href="?refresh=true" data-loading>Refresh</a>
+    <a class="btn btn-primary refresh-btn" href="?refresh=true" data-loading>Refresh</a>
     {% endif %}
   </div>
   <span class="cache-timestamp">Last updated: {{cached-at|date:"yyyy-MM-dd HH:mm"}}</span>
