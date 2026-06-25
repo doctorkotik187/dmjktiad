@@ -43,8 +43,9 @@
       {:error :server-error})))
 
 (defn- url-encode [s]
-  (-> (java.net.URLEncoder/encode s "UTF-8")
-      (str/replace "+" "%20")))
+  (when s
+    (-> (java.net.URLEncoder/encode (str s) "UTF-8")
+        (str/replace "+" "%20"))))
 
 (defn- find-participant [match puuid]
   (some #(when (= (:puuid %) puuid) %) (:participants (:info match))))
