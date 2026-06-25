@@ -1,6 +1,7 @@
 (ns doctorkotik.dmjktiad.web.controllers.jungler
   (:require
    [clojure.string :as str]
+   [clojure.tools.logging :as log]
    [doctorkotik.dmjktiad.cache :as cache]
    [doctorkotik.dmjktiad.services.riot-api :as riot-api]
    [doctorkotik.dmjktiad.services.analysis :as analysis]
@@ -45,7 +46,8 @@
 (defn- fetch-and-compute [region game-name tag-line puuid account]
   (let [ids-result (riot-api/get-match-ids region puuid 20)]
     (if (:error ids-result)
-      ids-result
+      (do (log/warn "match-ids failed" {:region region :game-name game-name :error (:error ids-result)})
+          ids-result)
       (let [match-ids (:ok ids-result)
             matches (keep :ok (map #(riot-api/get-match region %) match-ids))
             drake-data (analysis/extract-all-drake-data matches puuid)
@@ -56,6 +58,15 @@
             safe-top-champs (map (fn [[champ count]]
                                    [(safe-champ-name champ) count])
                                  (:top-champs stats))]
+        (log/info "player stats" {:region region
+                                  :player (str game-name "#" tag-line)
+                                  :matches-fetched (count match-ids)
+                                  :matches-loaded (count matches)
+                                  :jungle-games (:total-games stats)
+                                  :drake-rate (:drake-rate stats)
+                                  :wr-with-drakes (:win-with-drakes stats)
+                                  :wr-without-drakes (:win-without-drakes stats)
+                                  :verdict (:verdict-key stats)})
         {:ok (assoc stats
                     :gameName (:gameName account)
                     :tagLine (:tagLine account)

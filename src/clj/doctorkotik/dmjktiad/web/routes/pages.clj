@@ -10,6 +10,9 @@
     [reitit.ring.middleware.parameters :as parameters]
     [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]))
 
+(defn- url-path [s]
+  (-> (java.net.URLEncoder/encode s "UTF-8") (str/replace "+" "%20")))
+
 (defn wrap-rate-limit [handler]
   (fn [request]
     (let [ip (get-in request [:remote-addr])
@@ -39,9 +42,7 @@
       (layout/render request "error.html" {:status 400
                                            :title "Error"
                                            :message "Invalid Riot ID format"})
-      (let [redirect-url (str "/summoners/" region "/"
-                               (java.net.URLEncoder/encode game-name "UTF-8") "-"
-                               (java.net.URLEncoder/encode tag-line "UTF-8"))]
+      (let [redirect-url (str "/summoners/" region "/" (url-path game-name) "-" (url-path tag-line))]
         {:status 302
          :headers {"Location" redirect-url}
          :body ""}))))
@@ -61,9 +62,7 @@
           (layout/render request "error.html" {:status 400
                                                :title "Error"
                                                :message (name (:error result))})
-          (let [clean-url (str "/summoners/" region "/"
-                               (java.net.URLEncoder/encode game-name "UTF-8") "-"
-                               (java.net.URLEncoder/encode tag-line "UTF-8"))
+          (let [clean-url (str "/summoners/" region "/" (url-path game-name) "-" (url-path tag-line))
                 template-data (assoc (:ok result)
                                      :cached (:cached result)
                                      :rate-limited (:rate-limited result false)

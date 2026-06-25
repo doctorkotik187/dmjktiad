@@ -41,15 +41,19 @@
       429 {:error :rate-limited}
       {:error :server-error})))
 
+(defn- url-encode [s]
+  (-> (java.net.URLEncoder/encode s "UTF-8")
+      (str/replace "+" "%20")))
+
 (defn get-account
   "Resolves a player by Riot ID. Returns {:ok {:puuid ... :gameName ... :tagLine ...}} or {:error reason}."
   [region game-name tag-line]
   (let [cluster (region->cluster region)
         url (str (base-url cluster)
                  "/riot/account/v1/accounts/by-riot-id/"
-                 (java.net.URLEncoder/encode (name game-name) "UTF-8")
+                 (url-encode (name game-name))
                  "/"
-                 (java.net.URLEncoder/encode (name tag-line) "UTF-8"))]
+                 (url-encode (name tag-line)))]
     (get-request url)))
 
 (defn get-match-ids
@@ -60,7 +64,7 @@
    (let [cluster (region->cluster region)
          url (str (base-url cluster)
                   "/lol/match/v5/matches/by-puuid/"
-                  (java.net.URLEncoder/encode puuid "UTF-8")
+                  (url-encode puuid)
                   "/ids?count=" count "&queue=420")]
      (get-request url))))
 
@@ -69,7 +73,7 @@
   [region puuid]
   (let [platform (str/lower-case (name region))
         url (str "https://" platform ".api.riotgames.com/lol/summoner/v4/summoners/by-puuid/"
-                 (java.net.URLEncoder/encode puuid "UTF-8"))]
+                 (url-encode puuid))]
     (get-request url)))
 
 (defn get-match
@@ -78,5 +82,5 @@
   (let [cluster (region->cluster region)
         url (str (base-url cluster)
                  "/lol/match/v5/matches/"
-                 (java.net.URLEncoder/encode (name match-id) "UTF-8"))]
+                 (url-encode (name match-id)))]
     (get-request url)))
