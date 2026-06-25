@@ -69,4 +69,38 @@ document.addEventListener('DOMContentLoaded', function () {
     tick();
   }
 
+  var input = document.querySelector('input[name="riot-id"]');
+  var datalist = document.getElementById('recent-searches');
+  if (input && datalist) {
+    var STORAGE_KEY = 'drake-checker-recent';
+    function loadRecent() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch (e) { return []; }
+    }
+    function saveRecent(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+    function renderDatalist() {
+      var list = loadRecent();
+      datalist.innerHTML = '';
+      list.forEach(function (item) {
+        var opt = document.createElement('option');
+        opt.value = item;
+        datalist.appendChild(opt);
+      });
+    }
+    input.addEventListener('blur', function () {
+      var val = input.value.trim();
+      if (!val) return;
+      var list = loadRecent();
+      list = list.filter(function (x) { return x !== val; });
+      list.unshift(val);
+      if (list.length > 10) list = list.slice(0, 10);
+      saveRecent(list);
+      renderDatalist();
+    });
+    input.addEventListener('focus', renderDatalist);
+    renderDatalist();
+  }
+
 });

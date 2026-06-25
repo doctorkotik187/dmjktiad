@@ -2,8 +2,10 @@
   <form method="post" action="/check" data-loading>
     {% csrf-field %}
     <div class="field has-addons">
-      <div class="control">
-        <input type="text" name="riot-id" placeholder="PlayerName#TAG" required />
+      <div class="control is-expanded">
+        <input class="input" type="text" name="riot-id" placeholder="PlayerName#TAG" required autocomplete="off" list="recent-searches" />
+        <datalist id="recent-searches">
+        </datalist>
       </div>
       <div class="control">
         <select name="region">
