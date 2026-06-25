@@ -2,9 +2,10 @@
   <form method="post" action="/check" data-loading>
     {% csrf-field %}
     <div class="search-row">
-      <input class="search-input" type="text" name="riot-id" id="riot-id-input" placeholder="PlayerName#TAG (double click for history)" required list="recent-searches" />
+      <input class="search-input" type="text" name="riot-id" id="riot-id-input" placeholder="PlayerName#TAG" required list="recent-searches" />
       <datalist id="recent-searches">
       </datalist>
+      <span class="search-hint">double-click to see recent searches</span>
       <select name="region">
         <option value="euw1">EUW</option>
         <option value="na1">NA</option>

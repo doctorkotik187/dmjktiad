@@ -8,6 +8,9 @@
     <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:"4563"}}.png" alt="summoner icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/4563.png'" />
     <div>
       <h2>{{gameName}}#{{tagLine}}</h2>
+      {% if rank %}
+      <span class="rank-badge">{{rank.tier}} {{rank.rank}} — {{rank.lp}} LP ({{rank.wins}}W {{rank.losses}}L)</span>
+      {% endif %}
       <span class="tagline tooltip" title="How many of the recent ranked games were played in the jungle role (Smite + JUNGLE position)">{{jungle-games}} jungle games ({{jungle-main-rate|pct}} of {{total-games}} ranked)</span>
     </div>
     <div class="header-right">

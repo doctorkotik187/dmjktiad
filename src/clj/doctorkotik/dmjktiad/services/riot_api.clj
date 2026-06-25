@@ -112,8 +112,16 @@
           {:ok first-ids}
           {:ok (concat first-ids (:ok second-page))})))))
 
+(defn get-league
+  "Fetches ranked league data by summoner ID. Returns {:ok [{:tier :rank :leaguePoints :wins :losses ...}]} or {:error reason}."
+  [region summoner-id]
+  (let [platform (str/lower-case (name region))
+        url (str "https://" platform ".api.riotgames.com/lol/league/v4/entries/by-summoner/"
+                 (url-encode summoner-id))]
+    (get-request url)))
+
 (defn get-summoner
-  "Fetches summoner data by puuid. Returns {:ok {:profileIconId ... :summonerLevel ...}} or {:error reason}."
+  "Fetches summoner data by puuid. Returns {:ok {:profileIconId ... :summonerLevel ... :id ...}} or {:error reason}."
   [region puuid]
   (let [platform (str/lower-case (name region))
         url (str "https://" platform ".api.riotgames.com/lol/summoner/v4/summoners/by-puuid/"
