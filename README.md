@@ -1,4 +1,4 @@
-# does my jungler know there is a dragon 🐉
+# does my jungler know there is a dragon
 
 > A troll app for a deeper truth: **focusing dragons wins games.**
 
@@ -9,7 +9,7 @@ Paste a jungler's Riot ID and find out whether they've been doing their job or j
 ## What it does
 
 1. **Looks up the player** by Riot ID (`name#TAG`), confirms they actually play jungle (Smite + `JUNGLE` position in recent games).
-2. **Scans the last 20 matches** where they jungledand pulls dragon objective data for each game.
+2. **Scans the last 200 matches** where they jungled and pulls dragon objective data for each game.
 3. **Shows a result screen** with:
    - Drake focus rate (games where their team secured ≥ 1 drake vs total games)
    - Win/loss breakdown split by "got drakes" vs "ignored drakes"
@@ -25,16 +25,15 @@ Paste a jungler's Riot ID and find out whether they've been doing their job or j
 |---|---|
 | Language | Clojure |
 | Framework | [Kit](https://kit-clj.github.io) (Integrant + reitit + Ring) |
-| Database | SQLite (optional caching of API responses) |
-| Frontend | HTMX + Selmer templates (Kit default) |
+| Frontend | Selmer templates + vanilla JS (no frameworks) |
 | Data source | [Riot Games API](https://developer.riotgames.com) |
-| Deployment | Hetzner VPS |
+| Deployment | Hetzner VPS, uberjar as systemd service |
 
 ---
 
 ## Data source: Riot Games API
 
-The app uses the **official Riot Games API** — free, no scraping, no piggyback needed.
+The app uses the **official Riot Games API** — no scraping, no piggyback needed.
 
 Sign up at [developer.riotgames.com](https://developer.riotgames.com) to get an API key.
 
@@ -44,16 +43,20 @@ Sign up at [developer.riotgames.com](https://developer.riotgames.com) to get an 
 ### Endpoints used
 
 ```
-# 1. Resolve Riot ID → PUUID (platform-agnostic)
+# 1. Resolve Riot ID → PUUID (regional routing)
 GET https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}
 
-# 2. Get recent match IDs (filter by queue type)
-GET https://{regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids
-    ?queue=420    # 420 = Ranked Solo, 440 = Ranked Flex, 400 = Normal Draft, 0 = all
-    &count=20
+# 2. Get recent ranked match IDs
+GET https://{regional}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count=200&queue=420
 
 # 3. Get full match data (objectives, participants, outcomes)
 GET https://{regional}.api.riotgames.com/lol/match/v5/matches/{matchId}
+
+# 4. Get summoner data (profile icon, level)
+GET https://{platform}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}
+
+# 5. Get ranked league data (tier, rank, LP, W/L)
+GET https://{platform}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summonerId}
 ```
 
 **Region routing**: account/match endpoints use routing clusters (`americas`, `europe`, `asia`, `sea`) not platform codes (`euw1`, `na1`). The player tells us their platform on input; the app maps it to the right cluster.
@@ -101,8 +104,8 @@ A "jungle game" is confirmed when: `teamPosition == "JUNGLE"` AND (`summoner1Id 
 ### Clone and configure
 
 ```bash
-git clone https://github.com/you/does-my-jungler-know-there-is-a-dragon
-cd does-my-jungler-know-there-is-a-dragon
+git clone https://github.com/doctorkotik187/dmjktiad
+cd dmjktiad
 
 cp .env.example .env
 # edit .env → set RIOT_API_KEY=RGAPI-your-key-here
@@ -121,51 +124,15 @@ clj -M:dev
 clj -M:test
 ```
 
----
+### Build and deploy
 
-## Project structure
-
+```bash
+clj -T:build uber
+java -jar target/dmjktiad.jar
 ```
-src/clj/
-  dragon/
-    core.clj                 ; Integrant system entry point
-    config.clj               ; env + config loading
-    web/
-      routes/
-        pages.clj            ; GET /  →  input form
-        api.clj              ; POST /check  →  result page
-      controllers/
-        jungler.clj          ; orchestrates lookup + analysis
-      middleware/
-        rate_limit.clj       ; don't get banned by Riot
-    services/
-      riot_api.clj           ; HTTP client wrapper for Riot endpoints
-      analysis.clj           ; match data → stats (drake rate, WR, champs)
-      verdict.clj            ; stats → roast string
-resources/
-  templates/
-    home.html                ; input form (HTMX)
-    result.html              ; result card
-    error.html               ; "not a jungler" / "player not found"
-  public/
-    css/style.css
-```
-
----
-
-## Roadmap
-
-- [ ] MVP: input → verify jungler → drake stats → verdict
-- [ ] Region selector (or auto-detect from tagline)
-- [ ] SQLite response cache (avoid re-fetching recent matches)
-- [ ] Shareable result links
-- [ ] "Compare two junglers" mode
-- [ ] Public heatmap of drake-ignorant junglers by region (future chaos)
 
 ---
 
 ## Contributing
 
 It's a troll app. PRs that make the roasts funnier are automatically approved.
-
----
