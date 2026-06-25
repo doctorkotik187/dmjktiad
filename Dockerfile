@@ -1,7 +1,7 @@
 FROM clojure:temurin-21-tools-deps AS build
 COPY . /app
 WORKDIR /app
-RUN clj -T:build uber
+RUN make uberjar
 
 FROM eclipse-temurin:21-jre-jammy
 COPY --from=build /app/target/dmjktiad-standalone.jar /app/dmjktiad.jar
