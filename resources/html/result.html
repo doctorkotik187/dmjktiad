@@ -5,48 +5,100 @@
 
 <div class="result-card">
   <div class="result-header">
-    <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:'4563'}}.png" alt="summoner icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/4563.png'" />
+    <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:"4563"}}.png" alt="summoner icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/4563.png'" />
     <div>
       <h2>{{gameName}}#{{tagLine}}</h2>
-      <span class="tagline">{{total-games}} jungle games ({{jungle-percentage|double-format:1}}% of {{ranked-games}} ranked)</span>
+      <span class="tagline tooltip" title="How many of the recent ranked games were played in the jungle role (Smite + JUNGLE position)">{{jungle-games}} jungle games ({{jungle-main-rate|pct}} of {{total-games}} ranked)</span>
     </div>
     {% if rate-limited %}
-    <a class="button refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
+    <a class="btn refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
     {% else %}
     <a class="btn btn-primary refresh-btn" href="?refresh=true" data-loading>Refresh</a>
     {% endif %}
   </div>
+
+  {% if insufficient-data? %}
+  <div class="warning">
+    <p>Only {{jungle-games}} jungle games found. Results may be unreliable (minimum 15 recommended).</p>
+  </div>
+  {% endif %}
+
   <span class="cache-timestamp">Last updated: {{cached-at|date:"yyyy-MM-dd HH:mm"}}</span>
-
-  <div class="stat-main">
-    <span class="stat-number">{{drake-rate|double-format:0}}%</span>
-    <span class="stat-label">Drake Rate</span>
-  </div>
-
-  <div class="stat-row">
-    <div class="stat-small">
-      <span>{{total-drake-kills}}</span>
-      <span>Total Drakes</span>
-    </div>
-    <div class="stat-small">
-      <span>{{avg-drakes|double-format:1}}</span>
-      <span>Avg Drakes/Game</span>
-    </div>
-  </div>
-
-  <div class="stat-row">
-    <div class="stat-small">
-      <span>{{first-drake-rate|double-format:0}}%</span>
-      <span>First Drake Rate</span>
-    </div>
-    <div class="stat-small">
-      <span>{{drake-distribution.0|default:"0"}}/{{drake-distribution.1|default:"0"}}/{{drake-distribution.2|default:"0"}}/{{drake-distribution.3|default:"0"}}+</span>
-      <span>0/1/2/3+ Drakes</span>
-    </div>
-  </div>
 
   <div class="verdict">
     <p>{{verdict}}</p>
+  </div>
+
+  <div class="stat-main tooltip" title="Average share of all drakes taken by the team across jungle games. 50% = splitting evenly. Above 50% = winning the drake race.">
+    <span class="stat-number">{{control-pct|pct}}</span>
+    <span class="stat-label">Drake Control</span>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-small tooltip" title="Average number of drakes the team secured per jungle game.">
+      <span>{{avg-team-drakes|f1}}</span>
+      <span class="stat-label">Avg Team Drakes</span>
+    </div>
+    <div class="stat-small tooltip" title="Average number of drakes the enemy team secured per jungle game.">
+      <span>{{avg-enemy-drakes|f1}}</span>
+      <span class="stat-label">Avg Enemy Drakes</span>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-small tooltip" title="Team drakes minus enemy drakes per game. Positive = winning the drake race on average.">
+      <span>{{drake-differential|f1}}</span>
+      <span class="stat-label">Drake Differential</span>
+    </div>
+    <div class="stat-small tooltip" title="Percentage of jungle games where the team got the first drake kill.">
+      <span>{{first-drake-rate|pct}}</span>
+      <span class="stat-label">First Drake Rate</span>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-small tooltip" title="Percentage of jungle games where the team secured at least one drake.">
+      <span>{{team-drake-rate|pct}}</span>
+      <span class="stat-label">Team Drake Rate</span>
+    </div>
+    <div class="stat-small tooltip" title="Percentage of jungle games where the team got zero drakes.">
+      <span>{{zero-drake-rate|pct}}</span>
+      <span class="stat-label">Zero Drake Rate</span>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-small tooltip" title="Win rate in jungle games where the team secured at least one drake.">
+      <span>{{wr-with-drakes|pct}}</span>
+      <span class="stat-label">WR with Drakes</span>
+    </div>
+    <div class="stat-small tooltip" title="Win rate in jungle games where the team got zero drakes.">
+      <span>{{wr-without-drakes|pct}}</span>
+      <span class="stat-label">WR without Drakes</span>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-small tooltip" title="The difference between WR with drakes and WR without drakes. Bigger = drakes matter more for this player.">
+      <span>{{verdict-gap|pct}}</span>
+      <span class="stat-label">Verdict Gap</span>
+    </div>
+    <div class="stat-small tooltip" title="Percentage of jungle games where the enemy team secured more drakes.">
+      <span>{{drake-deficit-rate|pct}}</span>
+      <span class="stat-label">Deficit Rate</span>
+    </div>
+  </div>
+
+  <div class="wr-by-tier">
+    <h4>Win Rate by Drake Tier</h4>
+    {% for tier in wr-by-tier %}
+    <div class="tier-row tooltip" title="{{tier.label}}: {{tier.games}} games, {% if tier.wr %}{{tier.wr|pct}} win rate{% else %}no data{% endif %}">
+      <span class="tier-label">{{tier.label}}</span>
+      <span class="tier-games">{{tier.games}} games</span>
+      <div class="tier-bar"><div class="tier-bar-fill" style="width:{% if tier.wr-pct %}{{tier.wr-pct}}{% else %}0{% endif %}%"></div></div>
+      <span class="tier-wr">{{tier.wr|pct}}</span>
+    </div>
+    {% endfor %}
   </div>
 
   {% if top-champs %}
@@ -58,12 +110,13 @@
         <img src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/{{champ.0}}.png" alt="{{champ.0}}" />
         <div>
           <span class="champ-name">{{champ.0}}</span>
-          <span class="champ-count">{{champ.1}} games</span>
+          <span class="champ-count">{{champ.1}} games ({{champ.2|pct}})</span>
         </div>
       </div>
       {% endfor %}
     </div>
   </div>
   {% endif %}
+
 </div>
 {% endblock %}

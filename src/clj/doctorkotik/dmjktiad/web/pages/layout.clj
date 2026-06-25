@@ -11,9 +11,11 @@
 
 (defn init-selmer!
   [{:keys [env]}]
-  ;; disable HTML template caching for live reloading during development
   (when (= :dev env) (parser/cache-off!))
-  (parser/add-tag! :csrf-field (fn [_ _] (anti-forgery-field))))
+  (parser/add-tag! :csrf-field (fn [_ _] (anti-forgery-field)))
+  (parser/add-filter! :pct (fn [v] (if v (str (int (* v 100)) "%") "N/A")))
+  (parser/add-filter! :f1 (fn [v] (when v (format "%.1f" (float v)))))
+  (parser/add-filter! :mul (fn [v m] (when (number? v) (* v m)))))
 
 (defn render
   [request template & [params]]

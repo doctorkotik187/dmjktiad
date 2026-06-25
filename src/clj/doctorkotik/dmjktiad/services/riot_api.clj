@@ -46,6 +46,40 @@
   (-> (java.net.URLEncoder/encode s "UTF-8")
       (str/replace "+" "%20")))
 
+(defn- find-participant [match puuid]
+  (some #(when (= (:puuid %) puuid) %) (:participants (:info match))))
+
+(defn- team-objectives [match team-id]
+  (-> (:info match)
+      (:teams)
+      (->> (filter #(= (:teamId %) team-id))
+      first
+      :objectives)))
+
+(defn- jungle-game? [participant]
+  (and (= (:teamPosition participant) "JUNGLE")
+       (or (= (:summoner1Id participant) 11)
+           (= (:summoner2Id participant) 11))))
+
+(defn extract-drake-data [match puuid]
+  (when-let [participant (find-participant match puuid)]
+    (when (jungle-game? participant)
+      (let [team-id (:teamId participant)
+            objs (team-objectives match team-id)
+            dragon (:dragon objs)
+            enemy-id (if (= team-id 100) 200 100)
+            enemy-objs (team-objectives match enemy-id)
+            enemy-dragon (:dragon enemy-objs)]
+        {:win          (:win participant)
+         :team-drakes  (:kills dragon)
+         :enemy-drakes (:kills enemy-dragon)
+         :first-drake  (:first dragon)
+         :champion     (:championName participant)
+         :duration     (:gameDuration (:info match))}))))
+
+(defn extract-all-drake-data [matches puuid]
+  (keep #(extract-drake-data % puuid) matches))
+
 (defn get-account
   "Resolves a player by Riot ID. Returns {:ok {:puuid ... :gameName ... :tagLine ...}} or {:error reason}."
   [region game-name tag-line]

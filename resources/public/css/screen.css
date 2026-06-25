@@ -280,21 +280,24 @@ body {
 
 /* Top champs */
 .top-champs {
+  margin-top: 1.5rem;
   margin-bottom: 1.5rem;
 }
 
-.top-champs h4 {
-  font-size: 0.8rem;
+.top-champs h4,
+.wr-by-tier h4 {
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
   margin: 0 0 0.8rem;
+  font-weight: 600;
 }
 
 .champ-list {
   display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .champ-item {
@@ -381,4 +384,63 @@ body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Tooltip hover hint */
+.tooltip {
+  cursor: help;
+  border-bottom: 1px dashed var(--text-muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.tooltip:hover {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.stat-label.tooltip {
+  border-bottom-style: dotted;
+}
+
+/* Tier bars */
+.tier-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.tier-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.tier-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.3rem 0;
+}
+
+.tier-label {
+  min-width: 80px;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.tier-games {
+  min-width: 60px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.tier-wr {
+  min-width: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
 }

@@ -7,51 +7,6 @@
    [doctorkotik.dmjktiad.services.analysis :as analysis]
    [doctorkotik.dmjktiad.services.verdict :as verdict]))
 
-(defn- compute-stats [drake-data]
-  (let [total-games (count drake-data)
-        games-with-drakes (filter #(pos? (:drake-kills %)) drake-data)
-        drake-rate (if (pos? total-games)
-                     (float (/ (count games-with-drakes) total-games))
-                     0.0)
-        wins-with-drakes (filter :win games-with-drakes)
-        wins-without-drakes (filter :win (remove #(pos? (:drake-kills %)) drake-data))
-        wr-with-drakes (if (seq games-with-drakes)
-                         (float (/ (count wins-with-drakes) (count games-with-drakes)))
-                         0.0)
-        wr-without-drakes (if (seq (remove #(pos? (:drake-kills %)) drake-data))
-                            (float (/ (count wins-without-drakes)
-                               (count (remove #(pos? (:drake-kills %)) drake-data))))
-                            0.0)
-        total-drake-kills (reduce + (map :drake-kills drake-data))
-        avg-drakes (if (pos? total-games)
-                     (float (/ total-drake-kills total-games))
-                     0.0)
-        first-drake-games (filter :drake-first drake-data)
-        first-drake-rate (if (pos? total-games)
-                          (float (/ (count first-drake-games) total-games))
-                          0.0)
-        drake-distribution (frequencies (map :drake-kills drake-data))
-        top-champs (->> drake-data
-                        (group-by :champion)
-                        (map (fn [[champ games]] [champ (count games)]))
-                        (sort-by second >)
-                        (take 3))]
-    {:total-games     total-games
-     :jungle-games    total-games
-     :drake-rate      drake-rate
-     :total-drake-kills total-drake-kills
-     :avg-drakes      avg-drakes
-     :first-drake-rate first-drake-rate
-     :drake-distribution drake-distribution
-     :win-with-drakes   wr-with-drakes
-     :win-without-drakes wr-without-drakes
-     :top-champs     top-champs
-     :verdict-key     (verdict/rate->key drake-rate)}))
-
-(defn- safe-champ-name [champ]
-  (when (string? champ)
-    (str/replace champ #"[^a-zA-Z0-9._\-\s]" "")))
-
 (defn- safe-profile-icon-id [id]
   (when (integer? id)
     id))
@@ -63,35 +18,31 @@
           ids-result)
       (let [match-ids (:ok ids-result)
             matches (keep :ok (map #(riot-api/get-match region %) match-ids))
-            drake-data (analysis/extract-all-drake-data matches puuid)
-            stats (compute-stats drake-data)
+            drake-games (riot-api/extract-all-drake-data matches puuid)
+            stats (analysis/compute-stats drake-games (count matches))
             summoner-result (riot-api/get-summoner region puuid)
             profile-icon-id (safe-profile-icon-id
                              (:profileIconId (:ok summoner-result)))
             safe-top-champs (map (fn [[champ count]]
-                                   [(safe-champ-name champ) count])
-                                 (:top-champs stats))]
+                                   (let [name (str/replace (or champ "") #"[^a-zA-Z0-9._\-\s]" "")
+                                         pct (if (pos? (:jungle-games stats))
+                                                (float (/ count (:jungle-games stats)))
+                                                0.0)]
+                                     [name count pct]))
+                                 (:top-champs stats))
+            verdict-text (verdict/verdict stats)]
         (log/info "player stats" {:region region
                                   :player (str game-name "#" tag-line)
                                   :ranked-games (count matches)
-                                  :jungle-games (:total-games stats)
-                                  :total-drake-kills (:total-drake-kills stats)
-                                  :avg-drakes (:avg-drakes stats)
-                                  :drake-rate (:drake-rate stats)
-                                  :first-drake-rate (:first-drake-rate stats)
-                                  :wr-with-drakes (:win-with-drakes stats)
-                                  :wr-without-drakes (:win-without-drakes stats)
-                                  :verdict (:verdict-key stats)})
+                                  :jungle-games (:jungle-games stats)
+                                  :control-pct (:control-pct stats)
+                                  :verdict verdict-text})
         {:ok (assoc stats
                     :gameName (:gameName account)
                     :tagLine (:tagLine account)
                     :profile-icon-id profile-icon-id
                     :top-champs safe-top-champs
-                    :ranked-games (count matches)
-                    :jungle-percentage (if (pos? (count matches))
-                                         (* 100.0 (/ (:total-games stats) (count matches)))
-                                         0)
-                    :verdict (verdict/get-verdict (:drake-rate stats)))}))))
+                    :verdict verdict-text)}))))
 
 (def cooldown-ms (* 60 60 1000))
 
@@ -104,12 +55,26 @@
    (if-let [entry (cache/lookup region game-name tag-line)]
      (if (and force-refresh? (:cached-at entry) (< (- (System/currentTimeMillis) (:cached-at entry)) cooldown-ms))
        {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true :rate-limited true :retry-in-ms (- cooldown-ms (- (System/currentTimeMillis) (:cached-at entry)))}
-       {:ok (merge {:total-drake-kills 0
+       {:ok (merge {:insufficient-data? false
+                    :total-drake-kills 0
                     :avg-drakes 0.0
+                    :drake-differential 0.0
                     :first-drake-rate 0.0
-                    :drake-distribution {}
-                    :ranked-games 0
-                    :jungle-percentage 0.0}
+                    :zero-drake-rate 0.0
+                    :team-drake-rate 0.0
+                    :control-pct nil
+                    :wr-overall nil
+                    :wr-with-drakes nil
+                    :wr-without-drakes nil
+                    :wr-first-drake nil
+                    :wr-no-first-drake nil
+                    :wr-won-race nil
+                    :wr-lost-race nil
+                    :wr-tied-race nil
+                    :verdict-gap 0.0
+                    :drake-deficit-rate 0.0
+                    :wr-by-tier []
+                    :ranked-games 0}
                    (:result entry)
                    {:cached-at (java.util.Date. (:cached-at entry))})
            :cached true})
@@ -118,7 +83,8 @@
          account-result
          (let [puuid (:puuid (:ok account-result))
                account (:ok account-result)
-               result (fetch-and-compute region game-name tag-line puuid account)]           (if (:ok result)
+               result (fetch-and-compute region game-name tag-line puuid account)]
+           (if (:ok result)
              (let [now (System/currentTimeMillis)
                    result-with-timestamp (assoc (:ok result) :cached-at (java.util.Date. now))]
                (cache/put region game-name tag-line result-with-timestamp)
