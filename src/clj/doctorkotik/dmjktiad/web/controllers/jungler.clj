@@ -15,11 +15,11 @@
         wins-without-drakes (filter :win (remove #(pos? (:drake-kills %)) drake-data))
         wr-with-drakes (if (seq games-with-drakes)
                          (/ (count wins-with-drakes) (count games-with-drakes))
-                         nil)
+                         0)
         wr-without-drakes (if (seq (remove #(pos? (:drake-kills %)) drake-data))
                             (/ (count wins-without-drakes)
                                (count (remove #(pos? (:drake-kills %)) drake-data)))
-                            nil)
+                            0)
         top-champs (->> drake-data
                         (group-by :champion)
                         (map (fn [[champ games]] [champ (count games)]))
