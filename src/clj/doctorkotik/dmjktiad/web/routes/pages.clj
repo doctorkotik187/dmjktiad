@@ -42,12 +42,20 @@
       (layout/render request "error.html" {:status 400
                                            :title "Error"
                                            :message "Invalid summoner URL"})
-      (let [result (jungler/check-player (keyword region) game-name tag-line)]
+      (let [force-refresh? (= (get-in request [:query-params "refresh"]) "true")
+            result (jungler/check-player (keyword region) game-name tag-line force-refresh?)]
         (if (:error result)
           (layout/render request "error.html" {:status 400
                                                :title "Error"
                                                :message (name (:error result))})
-          (layout/render request "result.html" (:ok result)))))))
+          (let [clean-url (str "/summoners/" region "/"
+                               (java.net.URLEncoder/encode game-name "UTF-8") "-"
+                               (java.net.URLEncoder/encode tag-line "UTF-8"))]
+            (if force-refresh?
+              {:status 302
+               :headers {"Location" clean-url}
+               :body ""}
+              (layout/render request "result.html" (assoc (:ok result) :cached (:cached result))))))))))
 
 ;; Routes
 (defn page-routes [_opts]
