@@ -11,7 +11,7 @@
           (assoc-in [:headers "Content-Security-Policy"]
                     (str "default-src 'self'; "
                          "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-                         "script-src 'self' https://unpkg.com; "
+                         "script-src 'self' 'unsafe-inline'; "
                          "img-src 'self' data: https://ddragon.leagueoflegends.com; "
                          "connect-src 'self'; "
                          "frame-ancestors 'none'"))

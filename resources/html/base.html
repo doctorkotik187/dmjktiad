@@ -12,5 +12,15 @@
             {% block content %}{% endblock %}
         </div>
     </section>
+
+    <div id="loading-overlay" class="loading-overlay" style="display:none">
+        <div class="loading-box">
+            <span class="spinner"></span>
+            <p>Fetching match history from Riot...</p>
+            <p class="loading-sub">This may take 5-10 seconds</p>
+        </div>
+    </div>
+
+    <script src="/html/js/app.js"></script>
 </body>
 </html>

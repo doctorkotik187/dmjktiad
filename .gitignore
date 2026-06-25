@@ -18,7 +18,6 @@ modules/
 .clj-kondo/
 .calva/output-window/
 .lsp/
-resources/public/js/
 
 # secrets config
 secrets.edn
