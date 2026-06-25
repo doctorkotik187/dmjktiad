@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% include "search-form.html" %}
+
 <div class="result-card">
   <div class="result-header">
     <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:"4563"}}.png" alt="summoner icon" />
@@ -46,7 +48,5 @@
     </div>
   </div>
   {% endif %}
-
-  <a class="back-link" href="/">Check another</a>
 </div>
 {% endblock %}

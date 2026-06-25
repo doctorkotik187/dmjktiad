@@ -1,0 +1,28 @@
+<div class="form-card">
+  <form method="post" action="/check">
+    {% csrf-field %}
+    <div class="field has-addons">
+      <div class="control">
+        <input type="text" name="riot-id" placeholder="PlayerName#TAG" required />
+      </div>
+      <div class="control">
+        <select name="region">
+          <option value="euw1">EUW</option>
+          <option value="na1">NA</option>
+          <option value="kr">KR</option>
+          <option value="eun1">EUNE</option>
+          <option value="br1">BR</option>
+          <option value="la1">LA1</option>
+          <option value="la2">LA2</option>
+          <option value="tr1">TR</option>
+          <option value="ru">RU</option>
+          <option value="jp1">JP</option>
+          <option value="oc1">OCE</option>
+        </select>
+      </div>
+      <div class="control">
+        <button class="button is-primary" type="submit">Check</button>
+      </div>
+    </div>
+  </form>
+</div>
