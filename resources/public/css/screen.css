@@ -124,6 +124,8 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.2s;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn-primary {
