@@ -191,6 +191,19 @@ body {
   font-size: 0.85rem;
 }
 
+.header-right {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.cache-timestamp {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 /* Main stat */
 .stat-main {
   text-align: center;

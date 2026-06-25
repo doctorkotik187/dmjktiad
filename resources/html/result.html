@@ -10,11 +10,14 @@
       <h2>{{gameName}}#{{tagLine}}</h2>
       <span class="tagline tooltip" title="How many of the recent ranked games were played in the jungle role (Smite + JUNGLE position)">{{jungle-games}} jungle games ({{jungle-main-rate|pct}} of {{total-games}} ranked)</span>
     </div>
-    {% if rate-limited %}
-    <a class="btn refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
-    {% else %}
-    <a class="btn btn-primary refresh-btn" href="?refresh=true" data-loading>Refresh</a>
-    {% endif %}
+    <div class="header-right">
+      {% if rate-limited %}
+      <a class="btn refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
+      {% else %}
+      <a class="btn btn-primary refresh-btn" href="?refresh=true" data-loading>Refresh</a>
+      {% endif %}
+      <span class="cache-timestamp">Last updated: {{cached-at|date:"yyyy-MM-dd HH:mm"}}</span>
+    </div>
   </div>
 
   {% if insufficient-data? %}
@@ -22,8 +25,6 @@
     <p>Only {{jungle-games}} jungle games found. Results may be unreliable (minimum 15 recommended).</p>
   </div>
   {% endif %}
-
-  <span class="cache-timestamp">Last updated: {{cached-at|date:"yyyy-MM-dd HH:mm"}}</span>
 
   <div class="verdict">
     <p>{{verdict}}</p>
