@@ -1,15 +1,9 @@
-# syntax = docker/dockerfile:1.2
-FROM clojure:openjdk-17 AS build
+FROM clojure:temurin-21-tools-deps AS build
+COPY . /app
+WORKDIR /app
+RUN clj -T:build uber
 
-WORKDIR /
-COPY . /
-
-RUN clj -Sforce -T:build all
-
-FROM azul/zulu-openjdk-alpine:17
-
-COPY --from=build /target/dmjktiad-standalone.jar /dmjktiad/dmjktiad-standalone.jar
-
-EXPOSE $PORT
-
-ENTRYPOINT exec java $JAVA_OPTS -jar /dmjktiad/dmjktiad-standalone.jar
+FROM eclipse-temurin:21-jre-jammy
+COPY --from=build /app/target/dmjktiad-standalone.jar /app/dmjktiad.jar
+EXPOSE 3000
+ENTRYPOINT ["java", "-jar", "/app/dmjktiad.jar"]
