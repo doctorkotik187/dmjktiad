@@ -3,11 +3,24 @@
     [clojure.string :as str]
     [doctorkotik.dmjktiad.web.controllers.jungler :as jungler]
     [doctorkotik.dmjktiad.web.middleware.exception :as exception]
+    [doctorkotik.dmjktiad.web.middleware.rate-limit :as rate-limit]
     [doctorkotik.dmjktiad.web.pages.layout :as layout]
     [integrant.core :as ig]
     [reitit.ring.middleware.muuntaja :as muuntaja]
     [reitit.ring.middleware.parameters :as parameters]
     [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]))
+
+(defn wrap-rate-limit [handler]
+  (fn [request]
+    (let [ip (get-in request [:remote-addr])
+          now (System/currentTimeMillis)
+          check (rate-limit/check now ip)]
+      (if (:allowed check)
+        (handler request)
+        (-> (layout/render request "error.html" {:status 429
+                                                :title "Rate limited"
+                                                :message (str "Too many requests. Try again in " (int (Math/ceil (/ (:retry-in-ms check) 60000))) " minutes.")})
+            (assoc-in [:headers "Retry-After"] (str (int (Math/ceil (/ (:retry-in-ms check) 1000))))))))))
 
 (defn wrap-page-defaults []
   (let [error-page (layout/error-page
@@ -73,6 +86,7 @@
 (def route-data
   {:middleware
    [(wrap-page-defaults)
+    wrap-rate-limit
     parameters/parameters-middleware
     muuntaja/format-response-middleware
     exception/wrap-exception]})
