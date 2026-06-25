@@ -31,7 +31,8 @@
 
 (defn- get-request [url]
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
-                                 :as :json})]
+                                 :as :json
+                                 :throw-exceptions? false})]
     (case (:status response)
       200 {:ok (:body response)}
       400 {:error :bad-request}

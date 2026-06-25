@@ -44,7 +44,7 @@
     id))
 
 (defn- fetch-and-compute [region game-name tag-line puuid account]
-  (let [ids-result (riot-api/get-match-ids region puuid 20)]
+  (let [ids-result (riot-api/get-match-ids region puuid 100)]
     (if (:error ids-result)
       (do (log/warn "match-ids failed" {:region region :game-name game-name :error (:error ids-result)})
           ids-result)
@@ -62,7 +62,11 @@
                                   :player (str game-name "#" tag-line)
                                   :matches-fetched (count match-ids)
                                   :matches-loaded (count matches)
+                                  :ranked-games (count matches)
                                   :jungle-games (:total-games stats)
+                                  :jungle-percentage (if (pos? (count matches))
+                                                       (* 100.0 (/ (:total-games stats) (count matches)))
+                                                       0)
                                   :drake-rate (:drake-rate stats)
                                   :wr-with-drakes (:win-with-drakes stats)
                                   :wr-without-drakes (:win-without-drakes stats)
@@ -72,6 +76,10 @@
                     :tagLine (:tagLine account)
                     :profile-icon-id profile-icon-id
                     :top-champs safe-top-champs
+                    :ranked-games (count matches)
+                    :jungle-percentage (if (pos? (count matches))
+                                         (* 100.0 (/ (:total-games stats) (count matches)))
+                                         0)
                     :verdict (verdict/get-verdict (:drake-rate stats)))}))))
 
 (def cooldown-ms (* 60 60 1000))
@@ -91,8 +99,7 @@
          account-result
          (let [puuid (:puuid (:ok account-result))
                account (:ok account-result)
-               result (fetch-and-compute region game-name tag-line puuid account)]
-           (if (:ok result)
+               result (fetch-and-compute region game-name tag-line puuid account)]           (if (:ok result)
              (let [now (System/currentTimeMillis)
                    result-with-timestamp (assoc (:ok result) :cached-at (java.util.Date. now))]
                (cache/put region game-name tag-line result-with-timestamp)

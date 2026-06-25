@@ -5,10 +5,10 @@
 
 <div class="result-card">
   <div class="result-header">
-    <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:"4563"}}.png" alt="summoner icon" />
+    <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:'4563'}}.png" alt="summoner icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/4563.png'" />
     <div>
       <h2>{{gameName}}#{{tagLine}}</h2>
-      <span class="tagline">{{total-games}} games analyzed</span>
+      <span class="tagline">{{total-games}} jungle games ({{jungle-percentage|double-format:1}}% of {{ranked-games}} ranked)</span>
     </div>
     {% if rate-limited %}
     <a class="button refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
