@@ -1,0 +1,14 @@
+.git
+.github
+.jj
+target
+env/dev
+env/test
+test
+*.md
+LICENSE
+bb.edn
+kit.edn
+.clj-kondo
+.lsp
+.calva
