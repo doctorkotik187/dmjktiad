@@ -7,7 +7,7 @@
 </div>
 
 <div class="form-card">
-  <form hx-post="/check" hx-target="#result" hx-swap="innerHTML" hx-indicator="#loading">
+  <form method="post" action="/check">
     {% csrf-field %}
     <div class="field has-addons">
       <div class="control">
@@ -33,13 +33,5 @@
       </div>
     </div>
   </form>
-</div>
-
-<div id="result">
-</div>
-
-<div id="loading" class="loading">
-  <span class="spinner"></span>
-  <p>Fetching match history...</p>
 </div>
 {% endblock %}

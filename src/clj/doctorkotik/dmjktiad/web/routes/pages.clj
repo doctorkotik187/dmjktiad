@@ -21,15 +21,17 @@
 (defn check-handler [request]
   (let [region (get-in request [:form-params "region"])
         riot-id (get-in request [:form-params "riot-id"])
-        [game-name tag-line] (str/split riot-id #"#" 2)
-        result (jungler/check-player (keyword region) game-name tag-line)]
-    (if (:error result)
+        [game-name tag-line] (str/split riot-id #"#" 2)]
+    (if (or (nil? game-name) (nil? tag-line) (empty? game-name) (empty? tag-line))
       (layout/render request "error.html" {:status 400
                                            :title "Error"
-                                           :message (name (:error result))})
-      (let [push-url (str "/summoners/" region "/" (java.net.URLEncoder/encode game-name "UTF-8") "-" (java.net.URLEncoder/encode tag-line "UTF-8"))]
-        (-> (layout/render request "result.html" (:ok result))
-            (assoc-in [:headers "HX-Push-Url"] push-url))))))
+                                           :message "Invalid Riot ID format"})
+      (let [redirect-url (str "/summoners/" region "/"
+                               (java.net.URLEncoder/encode game-name "UTF-8") "-"
+                               (java.net.URLEncoder/encode tag-line "UTF-8"))]
+        {:status 302
+         :headers {"Location" redirect-url}
+         :body ""}))))
 
 (defn summoner-page [request]
   (let [region (get-in request [:path-params :region])
