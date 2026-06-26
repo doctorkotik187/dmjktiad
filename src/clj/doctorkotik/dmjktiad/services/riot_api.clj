@@ -1,6 +1,7 @@
 (ns doctorkotik.dmjktiad.services.riot-api
   (:require
    [clojure.string :as str]
+   [clojure.tools.logging :as log]
    [doctorkotik.dmjktiad.config :as config]
    [hato.client :as http]))
 
@@ -33,14 +34,17 @@
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
                                  :as :json
                                  :throw-exceptions? false})]
+    (log/debug "riot-api response" {:url url :status (:status response) :body (:body response)})
     (case (:status response)
       200 {:ok (:body response)}
-      400 {:error :bad-request}
-      401 {:error :unauthorized}
-      403 {:error :forbidden}
-      404 {:error :not-found}
-      429 {:error :rate-limited}
-      {:error :server-error})))
+      {:error (case (:status response)
+                400 :bad-request
+                401 :unauthorized
+                403 :forbidden
+                404 :not-found
+                429 :rate-limited
+                :server-error)
+       :message (get-in response [:body :status :message])})))
 
 (defn- url-encode [s]
   (when s

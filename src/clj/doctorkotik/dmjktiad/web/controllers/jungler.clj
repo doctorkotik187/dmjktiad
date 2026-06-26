@@ -21,11 +21,14 @@
             drake-games (riot-api/extract-all-drake-data matches puuid)
             stats (analysis/compute-stats drake-games (count matches))
             summoner-result (riot-api/get-summoner region puuid)
+            _ (log/info "summoner-result" {:region region :puuid puuid :result summoner-result})
             profile-icon-id (safe-profile-icon-id
                              (:profileIconId (:ok summoner-result)))
             league-result (riot-api/get-league region (:id (:ok summoner-result)))
+            _ (log/info "league-result" {:region region :summoner-id (:id (:ok summoner-result)) :result league-result})
             league-entry (when (:ok league-result)
                            (some #(when (= (:queueType %) "RANKED_SOLO_5x5") %) (:ok league-result)))
+            _ (log/info "league-entry" {:league-entry league-entry})
             rank-info (when league-entry
                         (let [wins (:wins league-entry)
                               losses (:losses league-entry)
@@ -36,6 +39,7 @@
                            :wins wins
                            :losses losses
                            :win-rate (if (pos? total) (/ wins total) 0.0)}))
+            _ (log/info "rank-info" {:rank-info rank-info})
             safe-top-champs (map (fn [[champ count]]
                                    (let [name (str/replace (or champ "") #"[^a-zA-Z0-9._\-\s]" "")
                                          pct (if (pos? (:jungle-games stats))
@@ -51,6 +55,7 @@
                                   :ranked-games (count matches)
                                   :jungle-games (:jungle-games stats)
                                   :not-jungler? not-jungler?
+                                  :rank rank-info
                                   :verdict verdict-text})
         {:ok (cond-> (assoc stats
                     :gameName (:gameName account)

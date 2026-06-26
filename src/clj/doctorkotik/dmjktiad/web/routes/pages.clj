@@ -81,9 +81,29 @@
       (let [force-refresh? (= (get-in request [:query-params "refresh"]) "true")
             result (jungler/check-player (keyword (->riot-region region)) game-name tag-line force-refresh?)]
         (if (:error result)
-          (layout/render request "error.html" {:status 400
-                                               :title "Error"
-                                               :message (name (:error result))})
+          (layout/render request "error.html" {:status (case (:error result)
+                                                          :not-found 404
+                                                          :bad-request 400
+                                                          :unauthorized 403
+                                                          :forbidden 403
+                                                          :rate-limited 429
+                                                          500)
+                                               :title (case (:error result)
+                                                         :not-found "Player Not Found"
+                                                         :bad-request "Invalid Request"
+                                                         :unauthorized "Unauthorized"
+                                                         :forbidden "Forbidden"
+                                                         :rate-limited "Rate Limited"
+                                                         "Error")
+                                               :message (if-let [api-msg (:message result)]
+                                                          api-msg
+                                                          (case (:error result)
+                                                            :not-found (str "Player " game-name "#" tag-line " was not found on " region ". Check the name and region.")
+                                                            :bad-request "The request was invalid. Please try again."
+                                                            :unauthorized "Invalid or expired API key."
+                                                            :forbidden "The API key may have expired. Please contact the site owner."
+                                                            :rate-limited "Too many requests. Please try again later."
+                                                            "Something went wrong. Please try again later."))})
           (if (get-in result [:ok :not-jungler])
             (layout/render request "not-jungler.html" {:gameName (get-in result [:ok :gameName])
                                                         :tagLine (get-in result [:ok :tagLine])})
@@ -105,13 +125,12 @@
 ;; Routes
 (defn page-routes [_opts]
   [["/" {:get home}]
-   ["/check" {:post check-handler}]
-   ["/summoners/:region/:full-name" {:get summoner-page}]])
+   ["/check" {:post (wrap-rate-limit check-handler)}]
+   ["/summoners/:region/:full-name" {:get (wrap-rate-limit summoner-page)}]])
 
 (def route-data
   {:middleware
    [(wrap-page-defaults)
-    wrap-rate-limit
     parameters/parameters-middleware
     muuntaja/format-response-middleware
     exception/wrap-exception]})
