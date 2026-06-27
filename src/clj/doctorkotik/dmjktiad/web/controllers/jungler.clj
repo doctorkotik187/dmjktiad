@@ -64,8 +64,8 @@
    (check-player region game-name tag-line false))
   ([region game-name tag-line force-refresh?]
    (if-let [entry (cache/lookup region game-name tag-line)]
-     (if (and force-refresh? (:cached-at entry) (< (- (System/currentTimeMillis) (:cached-at entry)) cooldown-ms))
-       {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true :rate-limited true :retry-in-ms (- cooldown-ms (- (System/currentTimeMillis) (:cached-at entry)))}
+     (let [retry-in-ms (max 0 (- cooldown-ms (- (System/currentTimeMillis) (:cached-at entry))))
+           retry-in-seconds (int (Math/ceil (/ retry-in-ms 1000)))]
        (do (log/info "check-player" {:player (str game-name "#" tag-line) :cached true :rank (get-in entry [:result :rank :tier])})
            {:ok (merge {:insufficient-data? false
                     :total-drake-kills 0
@@ -90,7 +90,10 @@
                     :region region}
                    (:result entry)
                    {:cached-at (java.util.Date. (:cached-at entry))})
-           :cached true}))
+           :cached true
+           :rate-limited (pos? retry-in-ms)
+           :retry-in-ms retry-in-ms
+           :retry-in-seconds retry-in-seconds}))
      (let [account-result (riot-api/get-account region game-name tag-line)]
        (if (:error account-result)
          account-result
