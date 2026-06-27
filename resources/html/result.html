@@ -7,7 +7,7 @@
   <div class="result-header">
     <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:"4563"}}.png" alt="summoner icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/4563.png'" />
     <div>
-      <h2>{{gameName}}#{{tagLine}}</h2>
+      <h2>{{gameName}}#{{tagLine}} <span class="region-badge">{{region}}</span></h2>
       {% if rank %}
       <span class="rank-badge">{{rank.tier}} {{rank.rank}} — {{rank.lp}} LP ({{rank.wins}}W {{rank.losses}}L, Win rate {{rank.win-rate|pct}})</span>
       {% endif %}

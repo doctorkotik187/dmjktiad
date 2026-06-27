@@ -48,6 +48,7 @@
         {:ok (cond-> (assoc stats
                     :gameName (:gameName account)
                     :tagLine (:tagLine account)
+                    :region region
                     :profile-icon-id profile-icon-id
                     :top-champs safe-top-champs
                     :rank rank-info
@@ -85,7 +86,8 @@
                     :verdict-gap 0.0
                     :drake-deficit-rate 0.0
                     :wr-by-tier []
-                    :ranked-games 0}
+                    :ranked-games 0
+                    :region region}
                    (:result entry)
                    {:cached-at (java.util.Date. (:cached-at entry))})
            :cached true}))

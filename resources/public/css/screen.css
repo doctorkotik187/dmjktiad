@@ -115,9 +115,16 @@ body {
   align-self: flex-start;
 }
 
-.search-row select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
+.region-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+  text-transform: uppercase;
 }
 
 .btn {
