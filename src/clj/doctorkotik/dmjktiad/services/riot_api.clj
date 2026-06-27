@@ -34,7 +34,8 @@
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
                                  :as :json
                                  :throw-exceptions? false})]
-    (log/debug "riot-api response" {:url url :status (:status response) :body (:body response)})
+    (when (not= 200 (:status response))
+      (log/warn "riot-api" {:url url :status (:status response) :body (:body response)}))
     (case (:status response)
       200 {:ok (:body response)}
       {:error (case (:status response)
@@ -118,11 +119,11 @@
           {:ok (concat first-ids (:ok second-page))})))))
 
 (defn get-league
-  "Fetches ranked league data by summoner ID. Returns {:ok [{:tier :rank :leaguePoints :wins :losses ...}]} or {:error reason}."
-  [region summoner-id]
+  "Fetches ranked league data by puuid. Returns {:ok [{:tier :rank :leaguePoints :wins :losses ...}]} or {:error reason}."
+  [region puuid]
   (let [platform (str/lower-case (name region))
-        url (str "https://" platform ".api.riotgames.com/lol/league/v4/entries/by-summoner/"
-                 (url-encode summoner-id))]
+        url (str "https://" platform ".api.riotgames.com/lol/league/v4/entries/by-puuid/"
+                 (url-encode puuid))]
     (get-request url)))
 
 (defn get-summoner

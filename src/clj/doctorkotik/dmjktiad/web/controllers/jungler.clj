@@ -21,15 +21,11 @@
             drake-games (riot-api/extract-all-drake-data matches puuid)
             stats (analysis/compute-stats drake-games (count matches))
             summoner-result (riot-api/get-summoner region puuid)
-            _ (log/info "summoner-result" {:region region :puuid puuid :result summoner-result})
             profile-icon-id (safe-profile-icon-id
                              (:profileIconId (:ok summoner-result)))
-            league-result (riot-api/get-league region (:id (:ok summoner-result)))
-            _ (log/info "league-result" {:region region :summoner-id (:id (:ok summoner-result)) :result league-result})
-            league-entry (when (:ok league-result)
-                           (some #(when (= (:queueType %) "RANKED_SOLO_5x5") %) (:ok league-result)))
-            _ (log/info "league-entry" {:league-entry league-entry})
-            rank-info (when league-entry
+            league-result (riot-api/get-league region puuid)
+            rank-info (when-let [league-entry (when (:ok league-result)
+                                                 (some #(when (= (:queueType %) "RANKED_SOLO_5x5") %) (:ok league-result)))]
                         (let [wins (:wins league-entry)
                               losses (:losses league-entry)
                               total (+ wins losses)]
@@ -39,7 +35,6 @@
                            :wins wins
                            :losses losses
                            :win-rate (if (pos? total) (/ wins total) 0.0)}))
-            _ (log/info "rank-info" {:rank-info rank-info})
             safe-top-champs (map (fn [[champ count]]
                                    (let [name (str/replace (or champ "") #"[^a-zA-Z0-9._\-\s]" "")
                                          pct (if (pos? (:jungle-games stats))
@@ -50,13 +45,6 @@
             not-jungler? (let [rate (:jungle-main-rate stats)]
                            (or (nil? rate) (< rate 0.4)))
             verdict-text (if not-jungler? nil (verdict/verdict stats))]
-        (log/info "player stats" {:region region
-                                  :player (str game-name "#" tag-line)
-                                  :ranked-games (count matches)
-                                  :jungle-games (:jungle-games stats)
-                                  :not-jungler? not-jungler?
-                                  :rank rank-info
-                                  :verdict verdict-text})
         {:ok (cond-> (assoc stats
                     :gameName (:gameName account)
                     :tagLine (:tagLine account)
@@ -77,7 +65,8 @@
    (if-let [entry (cache/lookup region game-name tag-line)]
      (if (and force-refresh? (:cached-at entry) (< (- (System/currentTimeMillis) (:cached-at entry)) cooldown-ms))
        {:ok (assoc (:result entry) :cached-at (java.util.Date. (:cached-at entry))) :cached true :rate-limited true :retry-in-ms (- cooldown-ms (- (System/currentTimeMillis) (:cached-at entry)))}
-       {:ok (merge {:insufficient-data? false
+       (do (log/info "check-player" {:player (str game-name "#" tag-line) :cached true :rank (get-in entry [:result :rank :tier])})
+           {:ok (merge {:insufficient-data? false
                     :total-drake-kills 0
                     :avg-drakes 0.0
                     :drake-differential 0.0
@@ -99,7 +88,7 @@
                     :ranked-games 0}
                    (:result entry)
                    {:cached-at (java.util.Date. (:cached-at entry))})
-           :cached true})
+           :cached true}))
      (let [account-result (riot-api/get-account region game-name tag-line)]
        (if (:error account-result)
          account-result
@@ -108,7 +97,9 @@
                result (fetch-and-compute region game-name tag-line puuid account)]
            (if (:ok result)
              (let [now (System/currentTimeMillis)
-                   result-with-timestamp (assoc (:ok result) :cached-at (java.util.Date. now))]
+                   result-with-timestamp (assoc (:ok result) :cached-at (java.util.Date. now))
+                   rank (get-in result-with-timestamp [:rank :tier])]
                (cache/put region game-name tag-line result-with-timestamp)
+               (log/info "check-player" {:player (str game-name "#" tag-line) :cached false :rank rank})
                {:ok result-with-timestamp :cached false})
              result)))))))

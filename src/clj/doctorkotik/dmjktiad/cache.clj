@@ -6,14 +6,11 @@
   [(keyword region) game-name tag-line])
 
 (defn lookup [region game-name tag-line]
-  (let [key (cache-key region game-name tag-line)
-        entry (get @store key)]
-    (println "[CACHE] lookup:" key "->" (if entry "HIT" "MISS"))
-    entry))
+  (let [key (cache-key region game-name tag-line)]
+    (get @store key)))
 
 (defn put [region game-name tag-line result]
   (let [key (cache-key region game-name tag-line)]
-    (println "[CACHE] put:" key)
     (swap! store assoc key
            {:result result
             :cached-at (System/currentTimeMillis)})))
