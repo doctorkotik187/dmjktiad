@@ -2,11 +2,7 @@
   <form method="post" action="/check" data-loading>
     {% csrf-field %}
     <div class="search-row">
-      <input class="search-input" type="text" name="riot-id" id="riot-id-input" placeholder="SummonerName#TAG" required list="recent-searches" />
-      <datalist id="recent-searches">
-      </datalist>
-      <span class="search-hint">double-click to see recent searches</span>
-      <select name="region">
+      <select name="region" id="region-select">
         <option value="euw">EUW</option>
         <option value="na">NA</option>
         <option value="kr">KR</option>
@@ -19,6 +15,11 @@
         <option value="jp">JP</option>
         <option value="oce">OCE</option>
       </select>
+    </div>
+    <div class="search-row">
+      <input class="search-input" type="text" name="riot-id" id="riot-id-input" placeholder="SummonerName#TAG" required list="recent-searches" autocomplete="off" />
+      <datalist id="recent-searches">
+      </datalist>
       <button class="btn btn-primary" type="submit">Check</button>
     </div>
   </form>

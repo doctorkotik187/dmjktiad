@@ -69,6 +69,15 @@ document.addEventListener('DOMContentLoaded', function () {
     tick();
   }
 
+  var regionSelect = document.getElementById('region-select');
+  if (regionSelect) {
+    var savedRegion = localStorage.getItem('drake-checker-region');
+    if (savedRegion) regionSelect.value = savedRegion;
+    regionSelect.addEventListener('change', function () {
+      localStorage.setItem('drake-checker-region', regionSelect.value);
+    });
+  }
+
   var input = document.getElementById('riot-id-input');
   var datalist = document.getElementById('recent-searches');
   if (input && datalist) {
