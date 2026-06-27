@@ -4,25 +4,7 @@
 {% include "search-form.html" %}
 
 <div class="result-card">
-  <div class="result-header">
-    <img class="champ-icon" src="https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/{{profile-icon-id|default:"4563"}}.png" alt="summoner icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/4563.png'" />
-    <div>
-      <h2>{{gameName}}#{{tagLine}} <span class="region-badge">{{region}}</span></h2>
-      {% if rank %}
-      <span class="rank-badge">{{rank.tier}} {{rank.rank}} — {{rank.lp}} LP ({{rank.wins}}W {{rank.losses}}L, Win rate {{rank.win-rate|pct}})</span>
-      {% endif %}
-      <span class="tagline tooltip" title="How many of the recent ranked games were played in the jungle role (Smite + JUNGLE position)">{{jungle-games}} jungle games ({{jungle-main-rate|pct}} of {{total-games}} ranked)</span>
-    </div>
-    <div class="header-right">
-      <a class="btn btn-secondary" href="{{op-gg-url}}" target="_blank" rel="noopener">OP.GG</a>
-      {% if rate-limited %}
-      <a class="btn refresh-btn" id="refresh-cooldown" data-seconds="{{retry-in-seconds}}">Refresh in 0:00</a>
-      {% else %}
-      <a class="btn btn-primary refresh-btn" href="?refresh=true" data-loading>Refresh</a>
-      {% endif %}
-      <span class="cache-timestamp">Last updated: {{cached-at|date:"yyyy-MM-dd HH:mm"}}</span>
-    </div>
-  </div>
+  {% include "player-header.html" %}
 
   {% if insufficient-data? %}
   <div class="warning">

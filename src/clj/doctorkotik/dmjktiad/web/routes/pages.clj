@@ -105,8 +105,9 @@
                                                             :rate-limited "Too many requests. Please try again later."
                                                             "Something went wrong. Please try again later."))})
           (if (get-in result [:ok :not-jungler])
-            (layout/render request "not-jungler.html" {:gameName (get-in result [:ok :gameName])
-                                                        :tagLine (get-in result [:ok :tagLine])})
+            (let [clean-url (str "/summoners/" region "/" (url-path game-name) "-" (url-path tag-line))]
+              (layout/render request "not-jungler.html" (assoc (:ok result)
+                                                                 :op-gg-url (str "https://op.gg/lol" clean-url))))
             (let [clean-url (str "/summoners/" region "/" (url-path game-name) "-" (url-path tag-line))
                   template-data (assoc (:ok result)
                                        :cached (:cached result)

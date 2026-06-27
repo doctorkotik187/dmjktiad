@@ -3,11 +3,15 @@
 {% block content %}
 {% include "search-form.html" %}
 
-<div class="not-jungler-card">
-  <div class="not-jungler-emoji">🐉❓</div>
-  <h2>This is not a jungler</h2>
-  <p>{{gameName}}#{{tagLine}} has not played a single jungle game in their recent ranked history.</p>
-  <p class="not-jungler-sub">Maybe they're a mid laner who watched one too many "support should jungle" guides. Or perhaps they just really like farming minions in a straight line.</p>
-  <a class="btn btn-primary" href="/">Check another</a>
+<div class="result-card">
+  {% include "player-header.html" %}
+
+  <div class="not-jungler-card">
+    <div class="not-jungler-emoji">🐉❓</div>
+    <h2>This is not a jungler</h2>
+    <p>{{gameName}}#{{tagLine}} has not played a single jungle game in their recent ranked history.</p>
+    <p class="not-jungler-sub">Maybe they're a mid laner who watched one too many "support should jungle" guides. Or perhaps they just really like farming minions in a straight line.</p>
+    <a class="btn btn-primary" href="/">Check another</a>
+  </div>
 </div>
 {% endblock %}
