@@ -98,6 +98,7 @@
        (if (:error account-result)
          account-result
          (let [puuid (:puuid (:ok account-result))
+               _ (log/info "extracted puuid" {:puuid puuid})
                account (:ok account-result)
                result (fetch-and-compute region game-name tag-line puuid account)]
            (if (:ok result)

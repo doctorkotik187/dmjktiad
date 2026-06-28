@@ -2,6 +2,7 @@
   (:require
    [clojure.string :as str]
    [clojure.tools.logging :as log]
+   [clojure.walk :as walk]
    [hato.client :as http]))
 
 (def ^:private routing
@@ -24,14 +25,21 @@
 (defn- base-url [cluster]
   (str "https://" cluster ".api.riotgames.com"))
 
+(def ^:private api-key-delay
+  (delay
+   (if-let [key (System/getenv "RIOT_API_KEY")]
+     (do (log/info "RIOT_API_KEY loaded from environment")
+         key)
+     (throw (ex-info "RIOT_API_KEY environment variable not set" {})))))
+
 (defn- api-key []
-  (or (System/getenv "RIOT_API_KEY")
-      (throw (ex-info "RIOT_API_KEY environment variable not set" {}))))
+  @api-key-delay)
 
 (defn- get-request [url]
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
                                  :as :json
-                                 :throw-exceptions? false})]
+                                 :throw-exceptions? false})
+        response (walk/keywordize-keys response)]
     (when (not= 200 (:status response))
       (log/warn "riot-api" {:url url :status (:status response) :body (:body response)}))
     (case (:status response)
@@ -95,7 +103,7 @@
                  (url-encode (name tag-line)))
         result (get-request url)]
     (log/info "get-account" {:url url :result result})
-    (update result :ok (fn [m] (into {} (map (fn [[k v]] [(keyword (str k)) v]) m))))))
+    result))
 
 (defn- fetch-match-ids-page [region puuid start]
   (let [cluster (region->cluster region)
