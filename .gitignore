@@ -20,4 +20,4 @@ modules/
 .lsp/
 
 # secrets config
-secrets.edn
+.env

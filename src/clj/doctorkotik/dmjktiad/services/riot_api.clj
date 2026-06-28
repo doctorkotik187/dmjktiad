@@ -2,7 +2,6 @@
   (:require
    [clojure.string :as str]
    [clojure.tools.logging :as log]
-   [doctorkotik.dmjktiad.config :as config]
    [hato.client :as http]))
 
 (def ^:private routing
@@ -26,9 +25,8 @@
   (str "https://" cluster ".api.riotgames.com"))
 
 (defn- api-key []
-  (let [key (:riot-api-key (config/secrets))]
-    (log/info "API key loaded from secrets.edn")
-    key))
+  (or (System/getenv "RIOT_API_KEY")
+      (throw (ex-info "RIOT_API_KEY environment variable not set" {}))))
 
 (defn- get-request [url]
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
@@ -94,8 +92,10 @@
                  "/riot/account/v1/accounts/by-riot-id/"
                  (url-encode (name game-name))
                  "/"
-                 (url-encode (name tag-line)))]
-    (get-request url)))
+                 (url-encode (name tag-line)))
+        result (get-request url)]
+    (log/info "get-account" {:url url :result result})
+    result))
 
 (defn- fetch-match-ids-page [region puuid start]
   (let [cluster (region->cluster region)

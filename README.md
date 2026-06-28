@@ -30,7 +30,7 @@ Paste a jungler's Riot ID and find out whether they've been doing their job or j
 ## Setup
 
 - Clojure CLI + a Riot Games API key (get one at developer.riotgames.com)
-- Set `RIOT_API_KEY` in your environment
+- Copy `.env.example` to `.env` and set your `RIOT_API_KEY`
 - `clj -M:dev` → http://localhost:3000
 - `clj -M:test` → run tests
 - `clj -T:build uber` → build, then `java -jar target/dmjktiad.jar`
