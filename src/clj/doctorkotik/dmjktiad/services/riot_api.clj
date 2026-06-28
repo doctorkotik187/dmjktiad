@@ -36,10 +36,13 @@
   @api-key-delay)
 
 (defn- get-request [url]
+  ; NOTE: hato :as :json returns string keys by default via jsonista.
+  ; keywordize-keys must be applied to :body explicitly, not the whole
+  ; response map (which would only keywordize top-level keys like :body, :status).
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
                                  :as :json
                                  :throw-exceptions? false})
-        response (walk/keywordize-keys response)]
+        response (update response :body walk/keywordize-keys)]
     (when (not= 200 (:status response))
       (log/warn "riot-api" {:url url :status (:status response) :body (:body response)}))
     (case (:status response)
