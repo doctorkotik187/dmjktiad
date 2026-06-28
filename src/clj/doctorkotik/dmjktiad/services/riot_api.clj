@@ -95,7 +95,7 @@
                  (url-encode (name tag-line)))
         result (get-request url)]
     (log/info "get-account" {:url url :result result})
-    result))
+    (update result :ok (fn [m] (into {} (map (fn [[k v]] [(keyword k) v]) m))))))
 
 (defn- fetch-match-ids-page [region puuid start]
   (let [cluster (region->cluster region)
