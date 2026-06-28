@@ -26,9 +26,9 @@
   (str "https://" cluster ".api.riotgames.com"))
 
 (defn- api-key []
-  (or (System/getenv "RIOT_API_KEY")
-      (:riot-api-key (config/secrets))
-      (throw (ex-info "RIOT_API_KEY env var not set and no secrets.edn found" {}))))
+  (let [key (:riot-api-key (config/secrets))]
+    (log/info "API key loaded from secrets.edn")
+    key))
 
 (defn- get-request [url]
   (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
