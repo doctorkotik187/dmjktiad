@@ -114,17 +114,10 @@
     (get-request url)))
 
 (defn get-match-ids
-  "Fetches up to 200 recent ranked match IDs for a puuid (2 pages of 100).
+  "Fetches up to 100 recent ranked match IDs for a puuid.
    Returns {:ok [id1 id2 ...]} or {:error reason}."
   [region puuid]
-  (let [first-page (fetch-match-ids-page region puuid 0)]
-    (if (:error first-page)
-      first-page
-      (let [first-ids (:ok first-page)
-            second-page (fetch-match-ids-page region puuid 100)]
-        (if (:error second-page)
-          {:ok first-ids}
-          {:ok (concat first-ids (:ok second-page))})))))
+  (fetch-match-ids-page region puuid 0))
 
 (defn get-league
   "Fetches ranked league data by puuid. Returns {:ok [{:tier :rank :leaguePoints :wins :losses ...}]} or {:error reason}."
