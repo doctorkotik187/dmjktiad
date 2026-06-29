@@ -6,60 +6,65 @@
 (defn verdict
   "Takes the stats map from analysis/compute-stats and returns a roast string."
   [stats]
-  (let [gap (:verdict-gap stats)
-        cp (:control-pct stats)
-        fdr (:first-drake-rate stats)
-        zdr (:zero-drake-rate stats)
-        dd (:drake-differential stats)
-        wr-with (:wr-with-drakes stats)
+  (let [gap        (:verdict-gap stats)
+        cp         (:control-pct stats)
+        fdr        (:first-drake-rate stats)
+        zdr        (:zero-drake-rate stats)
+        dd         (:drake-differential stats)
+        wr-with    (:wr-with-drakes stats)
         wr-without (:wr-without-drakes stats)
-        top (:top-champs stats)
-        hec? (= (ffirst top) "Hecarim")]
+        top        (:top-champs stats)
+        top-champ  (ffirst top)]
+    (let [special
+          (cond
+            (= top-champ "Nidalee")
+            "Nidalee main detected. Please reconsider your life choices. And your champion pool."
 
-    (let [special (cond
-                    (and gap (> gap 0.40) cp (< cp 0.40))
-                    "Statistically aware that drakes win games. Philosophically opposed to getting them."
+            (= top-champ "Hecarim")
+            "Hecarim main. He was going to run it down. The drake was also not on the way."
 
-                    (and fdr (< fdr 0.15))
-                    "First drake goes to: the enemy. Every game. Like clockwork. Almost impressive."
+            (and gap (> gap 0.40) cp (< cp 0.40))
+            "Knows drakes win games. Has decided this is someone else's problem."
 
-                    (and zdr (> zdr 0.40))
-                    "In over 40% of games their team got zero drakes. The dragon spawned. And died. For someone else."
+            (and fdr (< fdr 0.15))
+            "First drake rate: nearly zero. The enemy jungler has been there every time. Comfortable."
 
-                    (and dd (< dd -1.2))
-                    "The enemy jungler is sending their regards. And their drake stack."
+            (and zdr (> zdr 0.40))
+            "Zero drakes in 40%+ of games. The pit just sat there. Untouched. Mocking."
 
-                    (and wr-without (> wr-without 0.52) cp (< cp 0.42))
-                    "Wins games without drakes somehow. Like a man who thrives despite himself. Don't let it fool you."
+            (and dd (< dd -1.2))
+            "Losing the drake race by over one objective per game. The enemy jungler is not stressed."
 
-                    (and cp (> cp 0.58) wr-with (< wr-with 0.52))
-                    "Gets the drakes. Loses anyway. This is a different kind of problem."
+            (and wr-without (> wr-without 0.52) cp (< cp 0.42))
+            "Winning without drakes somehow. Do not let this fool either of you."
 
-                    hec?
-                    "Hecarim main detected. The inting is load-bearing. Drake was not on the way."
+            (and cp (> cp 0.58) wr-with (< wr-with 0.52))
+            "Full drake control. Still losing. This is a different conversation."
 
-                    :else nil)
+            :else nil)
 
-          primary (cond
-                    (nil? cp) "Not enough data to judge. But probably not great."
-                    (< cp 0.30) "There is a drake on the map!? Huh?!"
-                    (< cp 0.40) "Drakes were harmed in the making of these losses. By the enemy."
-                    (< cp 0.48) "Aware that drakes exist. Deeply conflicted about engaging with them."
-                    (< cp 0.55) "Sometimes checks drake. Like a man checking his ex's Instagram."
-                    (< cp 0.63) "Solid drake priority. Chat is still mad about something else."
-                    :else "This jungler eats drakes for breakfast. Respect.")
+          primary
+          (cond
+            (nil? cp)   "Not enough data. But the vibes are not good."
+            (< cp 0.30) "There is a drake on the map!? Huh?!"
+            (< cp 0.40) "The enemy team has been securing your drakes for you. Every game."
+            (< cp 0.48) "Drake control: optional. Apparently."
+            (< cp 0.55) "Shows up to drake sometimes. Results vary."
+            (< cp 0.63) "Solid drake presence. Chat is upset about something else."
+            :else       "Actually knows what a drake is. And paths to it. Rare.")
 
-          suffix (cond
-                   (and gap (> gap 0.45))
-                   (str "WR jumps from " (pct wr-without) "% to " (pct wr-with) "% with drakes. The data doesn't lie.")
+          suffix
+          (cond
+            (and gap (> gap 0.45))
+            (str "WR goes from " (pct wr-without) "% to " (pct wr-with) "% with drakes. The numbers are not subtle.")
 
-                   (and gap (> gap 0.30))
-                   "The gap between 'got drakes' and 'didn't' is not subtle."
+            (and gap (> gap 0.30))
+            "Drake games and non-drake games tell very different stories here."
 
-                   (and gap (< gap 0.10))
-                   "Oddly, drakes don't seem to matter much here. Investigate further."
+            (and gap (< gap 0.10))
+            "Drakes don't seem to be the issue. Keep looking."
 
-                   :else nil)]
+            :else nil)]
 
       (if special
         (if suffix (str special " " suffix) special)
