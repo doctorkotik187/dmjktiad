@@ -115,16 +115,13 @@ body {
   align-self: flex-start;
 }
 
-.region-badge {
-  font-size: 0.65rem;
-  font-weight: 600;
-  background: var(--accent);
-  color: #fff;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  vertical-align: middle;
-  margin-left: 0.4rem;
-  text-transform: uppercase;
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .btn {
