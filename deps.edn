@@ -24,7 +24,8 @@
  io.github.kit-clj/kit-undertow {:mvn/version "1.0.14"}
  selmer/selmer {:mvn/version "1.12.50"}
  luminus/ring-ttl-session {:mvn/version "0.3.3"}
- io.github.kit-clj/kit-hato {:mvn/version "1.0.3"}}
+ io.github.kit-clj/kit-hato {:mvn/version "1.0.3"}
+ cheshire/cheshire {:mvn/version "5.13.0"}}
  :aliases {:build {:deps {io.github.clojure/tools.build {:mvn/version "0.10.12"}}
                    :ns-default build}
 

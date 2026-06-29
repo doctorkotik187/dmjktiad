@@ -1,8 +1,8 @@
 (ns doctorkotik.dmjktiad.services.riot-api
   (:require
+   [cheshire.core :as json]
    [clojure.string :as str]
    [clojure.tools.logging :as log]
-   [clojure.walk :as walk]
    [hato.client :as http]))
 
 (def ^:private routing
@@ -36,17 +36,14 @@
   @api-key-delay)
 
 (defn- get-request [url]
-  ; NOTE: hato :as :json returns string keys by default via jsonista.
-  ; keywordize-keys must be applied to :body explicitly, not the whole
-  ; response map (which would only keywordize top-level keys like :body, :status).
-  (let [response (http/get url {:headers {"X-Riot-Token" (api-key)}
-                                 :as :json
-                                 :throw-exceptions? false})
-        response (update response :body walk/keywordize-keys)]
+  (let [response (http/get url {:headers           {"X-Riot-Token" (api-key)}
+                                :as                :string
+                                :throw-exceptions? false})
+        body     (json/parse-string (:body response) true)]
     (when (not= 200 (:status response))
-      (log/warn "riot-api" {:url url :status (:status response) :body (:body response)}))
+      (log/warn "riot-api" {:url url :status (:status response) :body body}))
     (case (:status response)
-      200 {:ok (:body response)}
+      200 {:ok body}
       {:error (case (:status response)
                 400 :bad-request
                 401 :unauthorized
@@ -54,7 +51,7 @@
                 404 :not-found
                 429 :rate-limited
                 :server-error)
-       :message (get-in response [:body :status :message])})))
+       :message (get-in body [:status :message])})))
 
 (defn- url-encode [s]
   (when s
