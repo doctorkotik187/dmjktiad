@@ -53,8 +53,8 @@
 
 (defn check-handler [request]
   (let [region (get-in request [:form-params "region"])
-        riot-id (get-in request [:form-params "riot-id"])
-        [game-name tag-line] (str/split riot-id #"#" 2)]
+        riot-id (str/trim (get-in request [:form-params "riot-id"]))
+        [game-name tag-line] (when riot-id (map str/trim (str/split riot-id #"#" 2)))]
     (if (or (nil? game-name) (nil? tag-line) (empty? game-name) (empty? tag-line)
             (not (valid-regions region))
             (not (re-matches #"^[a-zA-Z0-9._\-\s]+$" game-name))
@@ -62,7 +62,7 @@
       (layout/render request "error.html" {:status 400
                                            :title "Error"
                                            :message "Invalid Riot ID format"})
-      (let [redirect-url (str "/summoners/" (->op-gg-region region) "/" (url-path game-name) "-" (url-path tag-line))]
+      (let [redirect-url (str "/summoners/" (->op-gg-region region) "/" (url-path (str/trim game-name)) "-" (url-path (str/trim tag-line)))]
         {:status 302
          :headers {"Location" redirect-url}
          :body ""}))))
