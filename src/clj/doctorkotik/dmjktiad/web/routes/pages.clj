@@ -57,7 +57,7 @@
         riot-id (str/trim (get-in request [:form-params "riot-id"]))
         hp-email (get-in request [:form-params "hp_email"])]
     (when (and hp-email (not (str/blank? hp-email)))
-      (log/info "honeypot triggered" {:ip (get-in request [:remote-addr])})
+      (log/info "honeypot triggered" {:ip (get-in request [:remote-addr])}))
     (if (and hp-email (not (str/blank? hp-email)))
       (layout/render request "bot-trap.html")
       (if (or (nil? riot-id) (str/blank? riot-id)
@@ -75,7 +75,7 @@
             (let [redirect-url (str "/summoners/" (->op-gg-region region) "/" (url-path game-name) "-" (url-path tag-line))]
               {:status 302
                :headers {"Location" redirect-url}
-               :body ""}))))))))
+               :body ""})))))))
 
 (defn summoner-page [request]
   (let [region (get-in request [:path-params :region])
